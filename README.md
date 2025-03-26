@@ -52,7 +52,7 @@ ivanov.ivan
 ```
 4. Добавьте основной репозиторий в список удалённых (remote):
 ```
-  git remote add upstream https://github.com/ilya-shemyakin/30001.git
+  git remote add upstream https://github.com/ilya-shemyakin/40006.git
 ```
 5. Проверьте, что локальный репозиторий связан с вашим и с основным удалёнными репозиториями:
   * `git remote get-url origin` – должна быть ссылка на **ваш fork**
