@@ -2,7 +2,7 @@
 
 int main()
 {
-	std::cout << "gruzdev.ivan\n";
-	return 0;
+    std::cout << "gruzdev.ivan\n";
+    return 0;
 
 }
