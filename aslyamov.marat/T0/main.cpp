@@ -2,6 +2,6 @@
 
 
 int main() {
-	std::cout << "aslyamov.marat\n";
-	return 0;
+    std::cout << "aslyamov.marat\n";
+    return 0;
 }
