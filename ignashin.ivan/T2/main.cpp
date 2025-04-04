@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <complex>
+#include <iterator>
 
 
 struct DataStruct {
