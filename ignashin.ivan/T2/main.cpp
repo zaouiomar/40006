@@ -74,7 +74,6 @@ int main()
         std::back_inserter(data)
     );
 
-    std::cout << "Data:\n";
     std::copy(
         std::begin(data),
         std::end(data),
@@ -114,24 +113,26 @@ namespace nspace
 
     std::istream& operator>>(std::istream& in, UnsignedIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) {
+        if (!sentry)
+        {
             return in;
         }
+        std::string str;
+        char c;
 
-        std::string token;
-        in >> token;  // Считываем всё до пробела
-
-        try {
-            size_t pos = 0;
-            unsigned long long value = std::stoull(token, &pos, 0);  // 0 = автоопределение системы счисления
-            if (pos != token.size()) {  // Проверяем, что вся строка обработана
-                in.setstate(std::ios::failbit);
+        while (in.get(c)) {
+            if (c == ':' || isspace(c)) {
+                in.unget();
+                break;
             }
-            else {
-                dest.ref = value;
-            }
+            str.push_back(c);
         }
-        catch (...) {
+        try
+        {
+            dest.ref = std::stoull(str, nullptr, 16);
+        }
+        catch (...)
+        {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -178,7 +179,10 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         else if (label == "key3") {
             in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
         }
-        else if (label == ")") {
+        //else if (label == ")") {
+        //    break;
+        //}
+        else if (true) {
             break;
         }
         else {
