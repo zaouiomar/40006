@@ -1,123 +1,226 @@
 #include <iostream>
-#include <iomanip>
-#include <vector>
-#include <algorithm>
-#include <complex>
+#include <sstream>
+#include <string>
+#include <cassert>
 #include <iterator>
+#include <vector>
+#include <iomanip>
 
+namespace nspace
+{
+    struct DataStruct
+    {
+        double key1;
+        unsigned long long key2;
+        std::string key3;
+    };
 
-struct DataStruct {
-    double key1;
-    unsigned long long key2;
-    std::string key3;
-};
+    struct DelimiterIO
+    {
+        char exp;
+    };
 
+    struct DoubleIO
+    {
+        double& ref;
+    };
 
-std::istream& operator>>(std::istream& in, DataStruct& data);
-std::ostream& operator<<(std::ostream& out, const DataStruct& data);
-bool compareDataStructs(const DataStruct& a, const DataStruct& b);
+    struct UnsignedIO
+    {
+        unsigned long long& ref;
+    };
 
+    struct StringIO
+    {
+        std::string& ref;
+    };
 
-int main() {
-    std::vector<DataStruct> dataVector;
+    struct LabelIO
+    {
+        std::string exp;
+    };
+
+    class iofmtguard
+    {
+    public:
+        iofmtguard(std::basic_ios< char >& s);
+        ~iofmtguard();
+    private:
+        std::basic_ios< char >& s_;
+        std::streamsize width_;
+        char fill_;
+        std::streamsize precision_;
+        std::basic_ios< char >::fmtflags fmt_;
+    };
+
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
+    std::istream& operator>>(std::istream& in, DoubleIO&& dest);
+    std::istream& operator>>(std::istream& in, StringIO&& dest);
+    std::istream& operator>>(std::istream& in, LabelIO&& dest);
+    std::istream& operator>>(std::istream& in, DataStruct& dest);
+    std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
+}
+
+int main()
+{
+    using nspace::DataStruct;
+
+    std::vector<DataStruct> data;
+    std::istringstream iss("(:key1 50.0d:key2 0xFFA:key3 \"data\":)");
 
     std::copy(
-        std::istream_iterator<DataStruct>(std::cin),
-        std::istream_iterator<DataStruct>(),
-        std::back_inserter(dataVector)
+        std::istream_iterator< DataStruct >(iss),
+        std::istream_iterator< DataStruct >(),
+        std::back_inserter(data)
     );
 
-    std::sort(dataVector.begin(), dataVector.end(), compareDataStructs);
-
+    std::cout << "Data:\n";
     std::copy(
-        dataVector.begin(),
-        dataVector.end(),
-        std::ostream_iterator<DataStruct>(std::cout, "\n")
+        std::begin(data),
+        std::end(data),
+        std::ostream_iterator< DataStruct >(std::cout, "\n")
     );
 
     return 0;
 }
 
-
-std::istream& operator>>(std::istream& in, DataStruct& data) {
-    DataStruct temp;
-    bool key1_found = false, key2_found = false, key3_found = false;
-    std::string line;
-
-
-    char c;
-    while (in.get(c) && isspace(c)) {}
-
-    if (!std::getline(in, line, ')')) {
-        in.setstate(std::ios::failbit);
+namespace nspace
+{
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
+    {
+        std::istream::sentry sentry(in);
+        if (!sentry)
+        {
+            return in;
+        }
+        char c = '0';
+        in >> c;
+        if (in && (c != dest.exp))
+        {
+            in.setstate(std::ios::failbit);
+        }
         return in;
     }
 
-    std::istringstream iss(line);
-    std::string token;
+    std::istream& operator>>(std::istream& in, DoubleIO&& dest)
+    {
+        std::istream::sentry sentry(in);
+        if (!sentry)
+        {
+            return in;
+        }
+        return in >> dest.ref >> DelimiterIO{ 'd' };
+    }
 
-    while (iss >> token) {
-        if (token == ":key1") {
-            char c;
-            double number;
-            if ((iss >> number >> c) && (c == 'd' || c == 'D')) {
-                temp.key1 = number;
-                key1_found = true;
+    std::istream& operator>>(std::istream& in, UnsignedIO&& dest) {
+        std::istream::sentry sentry(in);
+        if (!sentry) {
+            return in;
+        }
+
+        std::string token;
+        in >> token;  // Считываем всё до пробела
+
+        try {
+            size_t pos = 0;
+            unsigned long long value = std::stoull(token, &pos, 0);  // 0 = автоопределение системы счисления
+            if (pos != token.size()) {  // Проверяем, что вся строка обработана
+                in.setstate(std::ios::failbit);
             }
             else {
-                in.setstate(std::ios::failbit);
-                return in;
+                dest.ref = value;
             }
         }
-        else if (token == ":key2") {
-            unsigned long long val;
-            if (iss >> std::hex >> val) {
-                temp.key2 = val;
-                key2_found = true;
-            }
+        catch (...) {
+            in.setstate(std::ios::failbit);
         }
-        else if (token == ":key3") {
-            char quote;
-            std::string str;
-            if (iss >> quote && quote == '"') {
-                std::getline(iss, str, '"');
-                temp.key3 = str;
-                key3_found = true;
-            }
+        return in;
+    }
+
+    std::istream& operator>>(std::istream& in, StringIO&& dest)
+    {
+        std::istream::sentry sentry(in);
+        if (!sentry)
+        {
+            return in;
+        }
+        return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
+    }
+
+    std::istream& operator>>(std::istream& in, LabelIO&& dest)
+    {
+        std::istream::sentry sentry(in);
+        if (!sentry)
+        {
+            return in;
+        }
+        std::string data = "";
+        if ((in >> StringIO{ data }) && (data != dest.exp))
+        {
+            in.setstate(std::ios::failbit);
+        }
+        return in;
+    }
+
+std::istream& operator>>(std::istream& in, DataStruct& dest)
+{
+    DataStruct temp;
+    in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
+
+    std::string label;
+    while (in >> label) {
+        if (label == "key1") {
+            in >> DoubleIO{ temp.key1 } >> DelimiterIO{ ':' };
+        }
+        else if (label == "key2") {
+            in >> UnsignedIO{ temp.key2 } >> DelimiterIO{ ':' };
+        }
+        else if (label == "key3") {
+            in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
+        }
+        else if (label == ")") {
+            break;
+        }
+        else {
+            in.setstate(std::ios::failbit);
+            break;
         }
     }
 
-    if (key1_found && key2_found && key3_found) {
-        data = temp;
-        if (in.fail()) {
-            in.clear();
-        }
+    if (in) {
+        dest = temp;
     }
-    else {
-        in.setstate(std::ios::failbit);
-    }
-
     return in;
 }
 
-
-std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-    out <<
-        "(:key1 " << std::fixed << std::setprecision(2) << data.key1 << 'd' <<
-        ":key2 0x" << std::hex << std::uppercase << data.key2 << std::dec <<
-        ":key3 \"" << data.key3 << "\":)";
-    return out;
-}
-
-
-bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
-    if (a.key1 != b.key1) {
-        return a.key1 < b.key1;
+    std::ostream& operator<<(std::ostream& out, const DataStruct& src)
+    {
+        std::ostream::sentry sentry(out);
+        if (!sentry)
+        {
+            return out;
+        }
+        iofmtguard fmtguard(out);
+        out << "(:key1 " << src.key1 << "d:key2 0x" << 
+            std::hex << src.key2 << 
+            std::dec << ":key3 \"" << src.key3 << "\":)";
+        return out;
     }
 
-    if (a.key2 != b.key2) {
-        return a.key2 < b.key2;
+    iofmtguard::iofmtguard(std::basic_ios< char >& s) :
+        s_(s),
+        width_(s.width()),
+        fill_(s.fill()),
+        precision_(s.precision()),
+        fmt_(s.flags())
+    {
     }
 
-    return a.key3.length() < b.key3.length();
+    iofmtguard::~iofmtguard()
+    {
+        s_.width(width_);
+        s_.fill(fill_);
+        s_.precision(precision_);
+        s_.flags(fmt_);
+    }
 }
