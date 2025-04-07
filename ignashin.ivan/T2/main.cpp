@@ -150,8 +150,17 @@ namespace nspace {
             }
             str.push_back(c);
         }
+
+        bool has_hex_prefix = (str.size() >= 2) &&
+            (str[0] == '0') &&
+            (tolower(str[1]) == 'x');
+
         try
         {
+            if (!has_hex_prefix) {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
             dest.ref = std::stoull(str, nullptr, 16);
         }
         catch (...)
