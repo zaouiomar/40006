@@ -284,7 +284,8 @@ namespace nspace
         }
 
         iofmtguard fmtguard(out);
-        out << "(:key1 '" << src.key1 << "':key2 (:N " << src.key2.first << ":D " << src.key2.second << ":):key3 \"" << src.key3 << "\":)";
+        out << "(:key1 '" << src.key1 << "':key2 (:N " << src.key2.first
+            << ":D " << src.key2.second << ":):key3 \"" << src.key3 << "\":)";
         return out;
     }
 
