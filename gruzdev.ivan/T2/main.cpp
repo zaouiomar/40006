@@ -306,12 +306,17 @@ namespace nspace
 
     bool compare(const DataStruct& a, const DataStruct& b)
     {
-        if (a.key1 != b.key1) return a.key1 < b.key1;
+        if (a.key1 != b.key1)
+        {
+            return a.key1 < b.key1;
+        }
         double a_rational = static_cast<double>(a.key2.first) / a.key2.second;
         double b_rational = static_cast<double>(b.key2.first) / b.key2.second;
-        if (a_rational != b_rational) return  a_rational < b_rational;
+        if (a_rational != b_rational)
+        {
+            return  a_rational < b_rational;
+        }
         return a.key3.length() < b.key3.length();
     }
 
 }
-
