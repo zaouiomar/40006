@@ -144,7 +144,7 @@ namespace nspace {
         in >> denominator;
         in >> DelimiterIO{ ':' } >> DelimiterIO{ ')' };
 
-        if (in && denominator >= 0) {
+        if (in && denominator != 0) {
             dest.ref = { numerator, denominator };
         }
         else {
