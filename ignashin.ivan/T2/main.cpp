@@ -1,10 +1,9 @@
 #include <iostream>
-#include <sstream>
-#include <string>
-#include <cassert>
-#include <iterator>
-#include <vector>
 #include <iomanip>
+#include <vector>
+#include <algorithm>
+#include <complex>
+#include <iterator>
 
 namespace nspace
 {
@@ -61,30 +60,54 @@ namespace nspace
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 }
 
+namespace nspace {
+    bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
+        if (a.key1 != b.key1) {
+            return a.key1 < b.key1;
+        }
+
+        if (a.key2 != b.key2) {
+            return a.key2 < b.key2;
+        }
+
+        return a.key3.length() < b.key3.length();
+    }
+}
+
 int main()
 {
     using nspace::DataStruct;
 
     std::vector<DataStruct> data;
-    std::istringstream iss("(:key1 50.0d:key2 0xFFA:key3 \"data\":)");
+    std::string line;
+
+
+    while (std::getline(std::cin, line)) {
+        std::istringstream iss(line);
+        std::copy(
+            std::istream_iterator<DataStruct>(iss),
+            std::istream_iterator<DataStruct>(),
+            std::back_inserter(data)
+        );
+
+
+        if (iss.fail() && !iss.eof()) {
+            iss.clear();
+        }
+    }
+
+    std::sort(data.begin(), data.end(), nspace::compareDataStructs);
 
     std::copy(
-        std::istream_iterator< DataStruct >(iss),
-        std::istream_iterator< DataStruct >(),
-        std::back_inserter(data)
-    );
-
-    std::copy(
-        std::begin(data),
-        std::end(data),
-        std::ostream_iterator< DataStruct >(std::cout, "\n")
+        data.begin(),
+        data.end(),
+        std::ostream_iterator<DataStruct>(std::cout, "\n")
     );
 
     return 0;
 }
 
-namespace nspace
-{
+namespace nspace {
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
     {
         std::istream::sentry sentry(in);
@@ -163,41 +186,38 @@ namespace nspace
         return in;
     }
 
-std::istream& operator>>(std::istream& in, DataStruct& dest)
-{
-    DataStruct temp;
-    in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
+    std::istream& operator>>(std::istream& in, DataStruct& dest)
+    {
+        DataStruct temp;
+        in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
 
-    std::string label;
-    while (in >> label) {
-        if (label == "key1") {
-            in >> DoubleIO{ temp.key1 } >> DelimiterIO{ ':' };
+        std::string label;
+        while (in >> label) {
+            if (label == "key1") {
+                in >> DoubleIO{ temp.key1 } >> DelimiterIO{ ':' };
+            }
+            else if (label == "key2") {
+                in >> UnsignedIO{ temp.key2 } >> DelimiterIO{ ':' };
+            }
+            else if (label == "key3") {
+                in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
+            }
+            else if (label == ")") {
+                break;
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                break;
+            }
         }
-        else if (label == "key2") {
-            in >> UnsignedIO{ temp.key2 } >> DelimiterIO{ ':' };
+
+        if (in) {
+            dest = temp;
         }
-        else if (label == "key3") {
-            in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
-        }
-        //else if (label == ")") {
-        //    break;
-        //}
-        else if (true) {
-            break;
-        }
-        else {
-            in.setstate(std::ios::failbit);
-            break;
-        }
+        return in;
     }
 
-    if (in) {
-        dest = temp;
-    }
-    return in;
-}
-
-    std::ostream& operator<<(std::ostream& out, const DataStruct& src)
+    std::ostream& operator<<(std::ostream& out, const DataStruct& data)
     {
         std::ostream::sentry sentry(out);
         if (!sentry)
@@ -205,9 +225,10 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
             return out;
         }
         iofmtguard fmtguard(out);
-        out << "(:key1 " << src.key1 << "d:key2 0x" << 
-            std::hex << src.key2 << 
-            std::dec << ":key3 \"" << src.key3 << "\":)";
+        out <<
+            "(:key1 " << std::fixed << std::setprecision(2) << data.key1 << 'd' <<
+            ":key2 0x" << std::hex << std::uppercase << data.key2 << std::dec <<
+            ":key3 \"" << data.key3 << "\":)";
         return out;
     }
 
