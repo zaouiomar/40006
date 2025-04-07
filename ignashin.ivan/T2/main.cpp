@@ -233,7 +233,7 @@ namespace nspace {
         }
         iofmtguard fmtguard(out);
         out <<
-            "(:key1 " << std::fixed << std::setprecision(2) << data.key1 << 'd' <<
+            "(:key1 " << std::fixed << std::setprecision(1) << data.key1 << 'd' <<
             ":key2 0x" << std::hex << std::uppercase << data.key2 << std::dec <<
             ":key3 \"" << data.key3 << "\":)";
         return out;
