@@ -42,7 +42,7 @@ namespace nspace
     class iofmtguard
     {
     public:
-        iofmtguard(std::basic_ios< char >& s);
+        iofmtguard(std::basic_ios<char>& s);
         ~iofmtguard();
     private:
         std::basic_ios< char >& s_;
@@ -155,16 +155,14 @@ namespace nspace {
             (str[0] == '0') &&
             (tolower(str[1]) == 'x');
 
-        try
-        {
+        try {
             if (!has_hex_prefix) {
                 in.setstate(std::ios::failbit);
                 return in;
             }
             dest.ref = std::stoull(str, nullptr, 16);
         }
-        catch (...)
-        {
+        catch (...) {
             in.setstate(std::ios::failbit);
         }
         return in;
