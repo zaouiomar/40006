@@ -5,42 +5,34 @@
 #include <complex>
 #include <iterator>
 
-namespace nspace
-{
-    struct DataStruct
-    {
+namespace nspace {
+    struct DataStruct {
         double key1;
         unsigned long long key2;
         std::string key3;
     };
 
-    struct DelimiterIO
-    {
+    struct DelimiterIO {
         char exp;
     };
 
-    struct DoubleIO
-    {
+    struct DoubleIO {
         double& ref;
     };
 
-    struct UnsignedIO
-    {
+    struct UnsignedIO {
         unsigned long long& ref;
     };
 
-    struct StringIO
-    {
+    struct StringIO {
         std::string& ref;
     };
 
-    struct LabelIO
-    {
+    struct LabelIO {
         std::string exp;
     };
 
-    class iofmtguard
-    {
+    class iofmtguard {
     public:
         iofmtguard(std::basic_ios<char>& s);
         ~iofmtguard();
@@ -74,8 +66,7 @@ namespace nspace {
     }
 }
 
-int main()
-{
+int main() {
     using nspace::DataStruct;
 
     std::vector<DataStruct> data;
@@ -108,27 +99,22 @@ int main()
 }
 
 namespace nspace {
-    std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
-    {
+    std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         char c = '0';
         in >> c;
-        if (in && (c != dest.exp))
-        {
+        if (in && (c != dest.exp)) {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DoubleIO&& dest)
-    {
+    std::istream& operator>>(std::istream& in, DoubleIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         return in >> dest.ref >> DelimiterIO{ 'd' };
@@ -136,8 +122,7 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, UnsignedIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         std::string str;
@@ -168,33 +153,27 @@ namespace nspace {
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, StringIO&& dest)
-    {
+    std::istream& operator>>(std::istream& in, StringIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
     }
 
-    std::istream& operator>>(std::istream& in, LabelIO&& dest)
-    {
+    std::istream& operator>>(std::istream& in, LabelIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         std::string data = "";
-        if ((in >> StringIO{ data }) && (data != dest.exp))
-        {
+        if ((in >> StringIO{ data }) && (data != dest.exp)) {
             in.setstate(std::ios::failbit);
         }
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DataStruct& dest)
-    {
+    std::istream& operator>>(std::istream& in, DataStruct& dest) {
         DataStruct temp;
         in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
 
@@ -224,11 +203,9 @@ namespace nspace {
         return in;
     }
 
-    std::ostream& operator<<(std::ostream& out, const DataStruct& data)
-    {
+    std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
         std::ostream::sentry sentry(out);
-        if (!sentry)
-        {
+        if (!sentry) {
             return out;
         }
         iofmtguard fmtguard(out);
@@ -245,11 +222,9 @@ namespace nspace {
         fill_(s.fill()),
         precision_(s.precision()),
         fmt_(s.flags())
-    {
-    }
+    {}
 
-    iofmtguard::~iofmtguard()
-    {
+    iofmtguard::~iofmtguard() {
         s_.width(width_);
         s_.fill(fill_);
         s_.precision(precision_);
