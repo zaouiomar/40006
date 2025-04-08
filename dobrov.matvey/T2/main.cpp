@@ -31,5 +31,5 @@ int main() {
         data.begin(),
         data.end(),
         std::ostream_iterator<DataStruct>(std::cout, "\n")
-    );   
+    );
 }
