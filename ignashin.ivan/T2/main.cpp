@@ -20,21 +20,18 @@ bool compareDataStructs(const DataStruct& a, const DataStruct& b) {
 }
 
 int main() {
-        std::vector<DataStruct> data;
-    std::string line;
+    std::vector<DataStruct> data;
 
-
-    while (std::getline(std::cin, line)) {
-        std::istringstream iss(line);
+    while (!std::cin.eof()) {
         std::copy(
-            std::istream_iterator<DataStruct>(iss),
+            std::istream_iterator<DataStruct>(std::cin),
             std::istream_iterator<DataStruct>(),
             std::back_inserter(data)
         );
 
-
-        if (iss.fail() && !iss.eof()) {
-            iss.clear();
+        if (std::cin.fail() && !std::cin.eof()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
     }
 
