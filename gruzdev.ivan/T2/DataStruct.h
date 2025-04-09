@@ -51,4 +51,5 @@ namespace nspace {
 
     bool compare(const DataStruct& a, const DataStruct& b);
 }
-#endif 
+#endif
+
