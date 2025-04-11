@@ -13,10 +13,6 @@ namespace nspace {
         char exp;
     };
 
-    struct LabelIO {
-        std::string exp;
-    };
-
     struct UllLitIO {
         unsigned long long& num;
     };
