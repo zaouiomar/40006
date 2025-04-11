@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DATASTRUCT_H_
+#define DATASTRUCT_H_
 #include <iostream>
 
 namespace nspace {
@@ -50,3 +51,4 @@ namespace nspace {
 
     bool compare(const DataStruct& a, const DataStruct& b);
 }
+#endif

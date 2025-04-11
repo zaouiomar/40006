@@ -53,7 +53,7 @@ namespace nspace {
         }
         if (in && str[str.size() - 1] == 'l' && str[str.size() - 2] == 'l' && str[str.size() - 3] == 'u' &&
             (str[str.size() - 4] >= '0' && str[str.size() - 4] <= '9')) {
-            for (int i = 0; i < str.size() - 3; i++) {
+            for (size_t i = 0; i < str.size() - 3; i++) {
                 if (str[i] < '0' || str[i] > '9') {
                     in.setstate(std::ios::failbit);
                 }
@@ -84,7 +84,7 @@ namespace nspace {
             in.setstate(std::ios::failbit);
         }
         if (in && str[0] == '0' && (str[1] == 'b' || str[1] == 'B') && (str[2] == '1' || str[2] == '0')) {
-            for (int i = 2; i < str.size(); i++) {
+            for (size_t i = 2; i < str.size(); i++) {
                 if (str[i] != '0' && str[i] != '1') {
                     in.setstate(std::ios::failbit);
                 }
