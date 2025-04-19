@@ -64,6 +64,11 @@ namespace nspace {
             }
         }
 
+        if (pos + 3 != str.length()) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+
         try {
             dest.ref = std::stoull(str.substr(0, pos));
         }
@@ -92,7 +97,12 @@ namespace nspace {
         }
 
         try {
-            dest.ref = std::stoull(str, nullptr, 8);
+            size_t pos;
+            dest.ref = std::stoull(str, &pos, 8);
+
+            if (pos != str.length()) {
+                in.setstate(std::ios::failbit);
+            }
         }
         catch (...) {
             in.setstate(std::ios::failbit);
