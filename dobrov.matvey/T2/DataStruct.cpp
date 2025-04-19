@@ -5,11 +5,12 @@
 namespace nspace {
     std::istream& operator>>(std::istream& in, DelimeterIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         char c;
-        in >> c;
-        if (in && (c != dest.exp)) {
+        if ((in >> c) && (c != dest.exp)) {
             in.setstate(std::ios::failbit);
         }
         return in;
@@ -17,14 +18,18 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, StringIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         return std::getline(in >> DelimeterIO{ '"' }, dest.ref, '"');
     }
 
     std::istream& operator>>(std::istream& in, LabelIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         std::string data;
         if ((in >> data) && (data != dest.exp)) {
@@ -35,7 +40,9 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, UllLitIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         std::string str;
         char c;
@@ -69,7 +76,9 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, UllOctIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         std::string str;
         char c;
@@ -94,24 +103,37 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) return in;
+        if (!sentry) {
+            return in;
+        }
 
         DataStruct final;
 
         in >> DelimeterIO{ '(' } >> DelimeterIO{ ':' };
 
         std::string str;
+
+        bool key1 = false;
+        bool key2 = false;
+        bool key3 = false;
+
         while (in >> str) {
             if (str == "key1") {
                 in >> UllLitIO{ final.key1 } >> DelimeterIO{ ':' };
+                key1 = true;
             }
             else if (str == "key2") {
                 in >> UllOctIO{ final.key2 } >> DelimeterIO{ ':' };
+                key2 = true;
             }
             else if (str == "key3") {
                 in >> StringIO{ final.key3 } >> DelimeterIO{ ':' };
+                key3 = true;
             }
             else if (str == ")") {
+                if (!(key1 && key2 && key3)) {
+                    in.setstate(std::ios::failbit);
+                }
                 break;
             }
             else {

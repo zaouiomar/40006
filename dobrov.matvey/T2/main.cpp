@@ -3,7 +3,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <iterator>
 #include "DataStruct.h"
 
 int main() {
@@ -13,16 +12,17 @@ int main() {
     std::vector<DataStruct> data;
     std::string str;
 
-    while (std::getline(std::cin, str)) {
-        std::istringstream iss(str);
+    while (std::cin.good())
+    {
         std::copy(
-            std::istream_iterator<DataStruct>(iss),
+            std::istream_iterator<DataStruct>(std::cin),
             std::istream_iterator<DataStruct>(),
             std::back_inserter(data)
         );
-
-        if (iss.fail() && !iss.eof()) {
-            iss.clear();
+        if (std::cin.fail() && !std::cin.eof())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
         }
     }
 
