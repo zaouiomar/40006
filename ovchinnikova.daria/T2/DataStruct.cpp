@@ -17,7 +17,7 @@ namespace nspace {
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DblLitIO&& dest) {  
+    std::istream& operator>>(std::istream& in, DblLitIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) {
             return in;
@@ -37,7 +37,7 @@ namespace nspace {
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, UllLitIO&& dest) {  
+    std::istream& operator>>(std::istream& in, UllLitIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) {
             return in;
@@ -75,7 +75,7 @@ namespace nspace {
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, StringIO&& dest) {    
+    std::istream& operator>>(std::istream& in, StringIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) {
             return in;
@@ -140,7 +140,7 @@ namespace nspace {
         return out;
     }
 
-    iofmtguard::iofmtguard(std::basic_ios< char >& s) : 
+    iofmtguard::iofmtguard(std::basic_ios< char >& s) :
         s_(s),
         width_(s.width()),
         fill_(s.fill()),
