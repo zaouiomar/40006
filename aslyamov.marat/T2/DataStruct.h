@@ -5,7 +5,7 @@
 namespace nspace {
     struct DataStruct {
         unsigned long long key1;
-        std::string key2;
+        unsigned long long key2;
         std::string key3;
     };
 
@@ -18,7 +18,7 @@ namespace nspace {
     };
 
     struct UllBinIO {
-        std::string& num;
+        unsigned long long& num;
     };
 
     struct StringIO {

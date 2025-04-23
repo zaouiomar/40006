@@ -89,7 +89,8 @@ namespace nspace {
                     in.setstate(std::ios::failbit);
                 }
             }
-            bin.num = str;
+            str = str.substr(2);
+            bin.num = std::stoull(str, nullptr, 2);
         }
         else
             in.setstate(std::ios::failbit);
@@ -148,19 +149,27 @@ namespace nspace {
         {
             return out;
         }
+        std::string k2;
+        unsigned long long num = dest.key2;
+        while (num) {
+            k2 += (num % 2 ? "1" : "0");
+            num = num / 2;
+        }
         iofmtguard guard(out);
-        out << "(:key1 " << dest.key1 << "ull:key2 " << dest.key2 << ":key3 \"" << dest.key3 << "\":)";
+        out << "(:key1 " << dest.key1 << "ull:key2 0b" << k2 << ":key3 \"" << dest.key3 << "\":)";
         return out;
     }
 
     bool compare(const DataStruct& a, const DataStruct& b) {
-        if (a.key1 != b.key1) return a.key1 < b.key1;
-
-        unsigned long long num_a = std::stoull(a.key2.substr(2), nullptr, 2);
-        unsigned long long num_b = std::stoull(b.key2.substr(2), nullptr, 2);
-        if (num_a != num_b) return num_a < num_b;
+        if (a.key1 != b.key1) {
+            return a.key1 < b.key1;
+        }
+        if (a.key2 != a.key2) {
+            return a.key2 < a.key2;
+        }
 
         return a.key3 < b.key3;
+
     }
 
     iofmtguard::iofmtguard(std::basic_ios<char>& s) :
