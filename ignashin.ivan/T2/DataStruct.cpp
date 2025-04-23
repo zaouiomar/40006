@@ -83,15 +83,21 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
     in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
 
     std::string label;
+    bool flag1 = false;
+    bool flag2 = false;
+    bool flag3 = false;
     while (in >> label) {
         if (label == "key1") {
             in >> DoubleIO{ temp.key1 } >> DelimiterIO{ ':' };
+            flag1 = true;
         }
         else if (label == "key2") {
             in >> UnsignedIO{ temp.key2 } >> DelimiterIO{ ':' };
+            flag2 = true;
         }
         else if (label == "key3") {
             in >> StringIO{ temp.key3 } >> DelimiterIO{ ':' };
+            flag3 = true;
         }
         else if (label == ")") {
             break;
@@ -102,8 +108,11 @@ std::istream& operator>>(std::istream& in, DataStruct& dest) {
         }
     }
 
-    if (in) {
+    if (in && flag1 && flag2 && flag3) {
         dest = temp;
+    }
+    else {
+            in.setstate(std::ios::failbit);
     }
     return in;
 }
