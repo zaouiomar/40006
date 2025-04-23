@@ -155,6 +155,9 @@ namespace nspace {
             k2 += (num % 2 ? "1" : "0");
             num = num / 2;
         }
+        if (k2 == "") {
+            k2 = "0";
+        }
         iofmtguard guard(out);
         out << "(:key1 " << dest.key1 << "ull:key2 0b" << k2 << ":key3 \"" << dest.key3 << "\":)";
         return out;
