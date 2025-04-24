@@ -25,7 +25,7 @@ namespace nspace {
         return std::getline(in >> DelimeterIO{ '"' }, dest.ref, '"');
     }
 
-    std::istream& operator>>(std::istream& in, SuffixIO&& dest) {
+    std::istream& operator>>(std::istream& in, SuffixIO&&) {
         std::istream::sentry sentry(in);
         if (!sentry) {
             return in;
