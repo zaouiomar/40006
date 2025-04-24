@@ -17,7 +17,7 @@ namespace nspace {
         std::string& ref;
     };
 
-    struct LabelIO {
+    struct SuffixIO {
         std::string exp;
     };
 
@@ -31,7 +31,7 @@ namespace nspace {
 
     std::istream& operator>>(std::istream& in, DelimeterIO&& dest);
     std::istream& operator>>(std::istream& in, StringIO&& dest);
-    std::istream& operator>>(std::istream& in, LabelIO&& dest);
+    std::istream& operator>>(std::istream& in, SuffixIO&& dest);
     std::istream& operator>>(std::istream& in, UllLitIO&& dest);
     std::istream& operator>>(std::istream& in, UllOctIO&& dest);
     std::istream& operator>>(std::istream& in, DataStruct& dest);

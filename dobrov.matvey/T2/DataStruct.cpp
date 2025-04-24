@@ -25,55 +25,40 @@ namespace nspace {
         return std::getline(in >> DelimeterIO{ '"' }, dest.ref, '"');
     }
 
-    std::istream& operator>>(std::istream& in, LabelIO&& dest) {
+    std::istream& operator>>(std::istream& in, SuffixIO&& dest) {
         std::istream::sentry sentry(in);
         if (!sentry) {
             return in;
         }
 
-        std::string data;
-        if ((in >> data) && (data != dest.exp)) {
+        char a, b, c;
+        in.get(a).get(b).get(c);
+
+        if ((a == 'u' && b == 'l' && c == 'l') ||
+            (a == 'U' && b == 'L' && c == 'L')) {
+        }
+        else {
             in.setstate(std::ios::failbit);
         }
+
         return in;
     }
 
     std::istream& operator>>(std::istream& in, UllLitIO&& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry) {
+        if (!sentry) return in;
+
+        unsigned long long value;
+        in >> value;
+
+        if (!in) {
             return in;
         }
 
-        std::string str;
-        char c;
+        in >> SuffixIO{};
 
-        while (in.get(c)) {
-            if (c == ':' || isspace(c)) {
-                in.unget();
-                break;
-            }
-            str.push_back(c);
-        }
-
-        size_t pos = str.find("ull");
-        if (pos == std::string::npos) {
-            pos = str.find("ULL");
-            if (pos == std::string::npos) {
-                in.setstate(std::ios::failbit);
-                return in;
-            }
-        }
-
-        if (pos + 3 != str.length()) {
-            in.setstate(std::ios::failbit);
-            return in;
-        }
-
-        try {
-            dest.ref = std::stoull(str.substr(0, pos));
-        }
-        catch (...) {
-            in.setstate(std::ios::failbit);
+        if (in) {
+            dest.ref = value;
         }
 
         return in;
@@ -133,7 +118,7 @@ namespace nspace {
                 key1 = true;
             }
             else if (str == "key2") {
-                in >> UllOctIO{ final.key2 } >> DelimeterIO{ ':' };
+                in >> DelimeterIO{ '0' } >> UllOctIO{ final.key2 } >> DelimeterIO{ ':' };
                 key2 = true;
             }
             else if (str == "key3") {
