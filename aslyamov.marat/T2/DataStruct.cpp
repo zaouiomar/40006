@@ -108,15 +108,9 @@ namespace nspace {
         bool f1 = false;
         bool f2 = false;
         bool f3 = false;
-        while (true) {
-            if (in.peek() == ')') {
-                break;
-            }
-
-            std::string inp;
-            if (!(in >> inp)) {
-                break;
-            }
+        std::string inp;
+        while (in.peek() != ')' && in) {
+            in >> inp;
             if (inp == "key1") {
                 in >> UllLitIO{ input.key1 };
                 in >> DelimiterIO{ ':' };
