@@ -30,15 +30,14 @@ namespace nspace {
         if (!sentry) {
             return in;
         }
-
+        
         char a, b, c;
         in.get(a).get(b).get(c);
 
-        if ((a == 'u' && b == 'l' && c == 'l') ||
-            (a == 'U' && b == 'L' && c == 'L')) {
-        }
-        else {
+        if (!((a == 'u' && b == 'l' && c == 'l') ||
+            (a == 'U' && b == 'L' && c == 'L'))) {
             in.setstate(std::ios::failbit);
+            return in;
         }
 
         return in;
