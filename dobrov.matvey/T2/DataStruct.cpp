@@ -30,7 +30,7 @@ namespace nspace {
         if (!sentry) {
             return in;
         }
-        
+
         char a, b, c;
         in.get(a).get(b).get(c);
 
