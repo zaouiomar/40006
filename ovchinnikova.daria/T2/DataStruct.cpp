@@ -72,7 +72,7 @@ namespace nspace {
         }
 
         dest.ref = value;
-        return in;       
+        return in;
     }
 
     std::istream& operator>>(std::istream& in, StringIO&& dest) {
