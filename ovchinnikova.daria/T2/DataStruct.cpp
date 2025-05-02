@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <sstream>
 #include "DataStruct.h"
 
 namespace nspace {
@@ -42,6 +43,7 @@ namespace nspace {
         if (!sentry) {
             return in;
         }
+
         std::string str = "";
         char c;
 
@@ -54,25 +56,23 @@ namespace nspace {
         }
 
         size_t length = str.length();
-        if (length < 4) {
+        if (length < 3 || (str.substr(length - 3, 3) != "ull" && str.substr(length - 3, 3) != "ULL")) {
             in.setstate(std::ios::failbit);
             return in;
         }
 
-        std::string suffix = str.substr(length - 3, 3);
-        if (suffix != "ull" && suffix != "ULL") {
+        std::string numStr = str.substr(0, length - 3);
+        unsigned long long value = 0;
+        std::stringstream ss(numStr);
+        ss >> value;
+
+        if (ss.fail()) {
             in.setstate(std::ios::failbit);
             return in;
         }
 
-        try {
-            dest.ref = std::stoull(str.substr(0, length - 3));
-        }
-        catch (...) {
-            in.setstate(std::ios::failbit);
-        }
-
-        return in;
+        dest.ref = value;
+        return in;       
     }
 
     std::istream& operator>>(std::istream& in, StringIO&& dest) {
@@ -82,18 +82,6 @@ namespace nspace {
         }
         in >> DelimiterIO{ '"' };
         return std::getline(in, dest.ref, '"');
-    }
-
-    std::istream& operator>>(std::istream& in, LabelIO&& dest) {
-        std::istream::sentry sentry(in);
-        if (!sentry) {
-            return in;
-        }
-        std::string data = "";
-        if ((in >> StringIO{ data }) && (data != dest.exp)) {
-            in.setstate(std::ios::failbit);
-        }
-        return in;
     }
 
     std::istream& operator>>(std::istream& in, DataStruct& dest) {

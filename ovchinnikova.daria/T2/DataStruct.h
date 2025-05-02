@@ -25,10 +25,6 @@ namespace nspace {
         std::string& ref;
     };
 
-    struct LabelIO {
-        std::string exp;
-    };
-
     class iofmtguard {
     public:
         iofmtguard(std::basic_ios< char >& s);
@@ -45,7 +41,6 @@ namespace nspace {
     std::istream& operator>>(std::istream& in, DblLitIO&& dest);
     std::istream& operator>>(std::istream& in, UllLitIO&& dest);
     std::istream& operator>>(std::istream& in, StringIO&& dest);
-    std::istream& operator>>(std::istream& in, LabelIO&& dest);
     std::istream& operator>>(std::istream& in, DataStruct& dest);
     std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 
