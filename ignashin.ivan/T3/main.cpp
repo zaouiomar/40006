@@ -222,6 +222,11 @@ void areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
 }
 
 void areaMean(std::vector<Polygon>& data) {
+    if (data.size() == static_cast<size_t>(0)) {
+        invalidCommand();
+        return;
+    }
+
     double output = std::accumulate(
         data.begin(),
         data.end(),
@@ -263,6 +268,11 @@ double calculateArea(std::vector<Point>& points) {
 }
 
 void maxMin(std::string& command, std::string& arg, std::vector<Polygon> data) {
+    if (data.size() == static_cast<size_t>(0)) {
+        invalidCommand();
+        return;
+    }
+
     if (arg == "VERTEXES") {
         auto output = (command == "MAX")
             ? std::max_element(data.begin(), data.end(), VertexCountComparator())
