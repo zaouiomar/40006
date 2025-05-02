@@ -7,6 +7,7 @@
 #include <numeric>
 #include <iomanip>
 #include <limits>
+#include <iterator>
 
 
 struct Point
@@ -41,7 +42,7 @@ struct EvenOddFilter {
     int mod;
     EvenOddFilter(std::string& arg) : mod(arg == "EVEN" ? 0 : 1) {}
     bool operator()(const Polygon& figure) {
-        return figure.points.size() % 2 == mod;
+        return figure.points.size() % static_cast<size_t>(2) == mod;
     }
 };
 
@@ -230,7 +231,7 @@ void areaNum(int arg, std::vector<Polygon>& data) {
         data.end(),
         0.0,
         [arg](double sum, Polygon& figure) {
-            if (figure.points.size() == arg) {
+            if (figure.points.size() == static_cast<size_t>(arg)) {
                 return sum + calculateArea(figure.points);
             }
             return sum;
@@ -244,7 +245,7 @@ double calculateArea(std::vector<Point>& points) {
     double area = 0.0;
     size_t n = points.size();
 
-    for (int i = 0; i < n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         int j = (i + 1) % n;
         area += (points[i].x * points[j].y) - (points[i].y * points[j].x);
     }
@@ -279,7 +280,7 @@ void count(int arg, std::vector<Polygon> data) {
         data.end(),
         0.0,
         [arg](double sum, Polygon& figure) {
-            if (figure.points.size() == arg) {
+            if (figure.points.size() == static_cast<size_t>(arg)) {
                 return sum + 1;
             }
             return sum;
