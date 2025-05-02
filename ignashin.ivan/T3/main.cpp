@@ -42,7 +42,7 @@ struct EvenOddFilter {
     int mod;
     EvenOddFilter(std::string& arg) : mod(arg == "EVEN" ? 0 : 1) {}
     bool operator()(const Polygon& figure) {
-        return figure.points.size() % static_cast<size_t>(2) == mod;
+        return static_cast<int>(figure.points.size()) % 2 == mod;
     }
 };
 
