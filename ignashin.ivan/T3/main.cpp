@@ -60,7 +60,7 @@ struct AreaComparator {
 
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
+    if (argc != 2) {
         std::cerr << "ERROR no filename" << '\n';
         return 1;
     }
@@ -68,6 +68,11 @@ int main(int argc, char* argv[]) {
     const std::string filename = argv[1];
     std::vector<Polygon> data;
     std::ifstream input{ filename };
+
+    if (!input.is_open()) {
+        std::cerr << "ERROR\n";
+        return 1;
+    }
 
     while (!input.eof()) {
         std::copy(
@@ -94,7 +99,7 @@ int main(int argc, char* argv[]) {
             else if (arg == "MEAN") {
                 areaMean(data);
             }
-            else if (isNumber(arg)) {
+            else if (isNumber(arg) && std::stoi(arg) >= 3) {
                 areaNum(std::stoi(arg), data);
             }
             else {
@@ -104,7 +109,7 @@ int main(int argc, char* argv[]) {
         else if (command == "MAX" || command == "MIN") {
             std::string arg;
             std::cin >> arg;
-            if (arg == "AREA" || arg == "VERTEXES" || isNumber(arg)) {
+            if (arg == "AREA" || arg == "VERTEXES") {
                 maxMin(command, arg, data);
             }
             else {
@@ -117,7 +122,7 @@ int main(int argc, char* argv[]) {
             if (arg == "EVEN" || arg == "ODD") {
                 count(arg, data);
             }
-            else if (isNumber(arg)) {
+            else if (isNumber(arg) && std::stoi(arg) >= 3) {
                 count(std::stoi(arg), data);
             }
             else {
@@ -162,6 +167,11 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     int count;
 
     if (!(in >> count)) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    if (count < 3) {
         in.setstate(std::ios::failbit);
         return in;
     }
