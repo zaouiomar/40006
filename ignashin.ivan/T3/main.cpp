@@ -30,10 +30,10 @@ void areaEvenOdd(std::string& arg, std::vector<Polygon>& data);
 void areaMean(std::vector<Polygon>& data);
 void areaNum(int arg, std::vector<Polygon>& data);
 double calculateArea(std::vector<Point>& points);
-void maxMin(std::string& command, std::string& arg, std::vector<Polygon> data);
-void count(std::string arg, std::vector<Polygon> data);
-void count(int arg, std::vector<Polygon> data);
-void perms(Polygon& etalon, std::vector<Polygon> data);
+void maxMin(std::string& command, std::string& arg, std::vector<Polygon>& data);
+void count(std::string arg, std::vector<Polygon>& data);
+void count(int arg, std::vector<Polygon>& data);
+void perms(Polygon& etalon, std::vector<Polygon>& data);
 void rightshapes(std::vector<Polygon>& data);
 bool hasRightAngle(std::vector<Point>& figure);
 
@@ -266,7 +266,7 @@ double calculateArea(std::vector<Point>& points) {
     return std::abs(area) / 2.0;
 }
 
-void maxMin(std::string& command, std::string& arg, std::vector<Polygon> data) {
+void maxMin(std::string& command, std::string& arg, std::vector<Polygon>& data) {
     if (data.size() == static_cast<size_t>(0)) {
         invalidCommand();
         return;
@@ -287,13 +287,13 @@ void maxMin(std::string& command, std::string& arg, std::vector<Polygon> data) {
     }
 }
 
-void count(std::string arg, std::vector<Polygon> data) {
+void count(std::string arg, std::vector<Polygon>& data) {
     EvenOddFilter filter(arg);
     int output = std::count_if(data.begin(), data.end(), filter);
     std::cout << output << '\n';
 }
 
-void count(int arg, std::vector<Polygon> data) {
+void count(int arg, std::vector<Polygon>& data) {
     int output = std::accumulate(
         data.begin(),
         data.end(),
@@ -308,7 +308,7 @@ void count(int arg, std::vector<Polygon> data) {
     std::cout << output << '\n';
 }
 
-void perms(Polygon& etalon, std::vector<Polygon> data) {
+void perms(Polygon& etalon, std::vector<Polygon>& data) {
     auto output = std::count_if(data.begin(), data.end(),
         [&etalon](const Polygon& poly) {
             return poly.points.size() == etalon.points.size() &&
