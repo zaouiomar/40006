@@ -74,11 +74,18 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::copy(
-        std::istream_iterator<Polygon>(input),
-        std::istream_iterator<Polygon>(),
-        std::back_inserter(data)
-    );
+    while (!input.eof()) {
+        std::copy(
+            std::istream_iterator<Polygon>(input),
+            std::istream_iterator<Polygon>(),
+            std::back_inserter(data)
+        );
+
+        if (input.fail() && !input.eof()) {
+            input.clear();
+            input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
 
 
     std::string command;
