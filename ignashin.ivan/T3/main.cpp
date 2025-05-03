@@ -217,7 +217,6 @@ void areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
             return sum;
         }
     );
-
     std::cout << std::fixed << std::setprecision(1) << output << '\n';
 }
 
@@ -345,7 +344,9 @@ bool hasRightAngle(std::vector<Point>& figure) {
 
         int dot = ba_x * bc_x + ba_y * bc_y;
 
-        if (dot == 0) return true;
+        if (dot == 0) {
+            return true;
+        }
     }
     return false;
 }
