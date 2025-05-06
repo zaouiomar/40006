@@ -56,7 +56,7 @@ namespace nspace {
         }
 
         size_t length = str.length();
-        if (length < 3 || (str.substr(length - 3, 3) != "ull" && str.substr(length - 3, 3) != "ULL")) {
+        if (length < 4 || (str.substr(length - 3, 3) != "ull" && str.substr(length - 3, 3) != "ULL")) { 
             in.setstate(std::ios::failbit);
             return in;
         }
