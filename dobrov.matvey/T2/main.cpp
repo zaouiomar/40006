@@ -35,4 +35,5 @@ int main() {
         data.end(),
         std::ostream_iterator<DataStruct>(std::cout, "\n")
     );
+
 }
