@@ -12,7 +12,7 @@
 int main() {
     using namespace nspace;
     std::vector<DataStruct> data;
-    while (!std::cin.eof()) 
+    while (!std::cin.eof())
     {
         if (std::cin.fail())
         {
