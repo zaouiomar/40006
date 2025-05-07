@@ -27,15 +27,16 @@ std::istream& operator>>(std::istream& in, Polygon& poly);
 
 void invalidCommand();
 bool isNumber(std::string& arg);
-void areaEvenOdd(std::string& arg, std::vector<Polygon>& data);
-void areaMean(std::vector<Polygon>& data);
-void areaNum(int arg, std::vector<Polygon>& data);
+double areaEvenOdd(std::string& arg, std::vector<Polygon>& data);
+double areaMean(std::vector<Polygon>& data);
+double areaNum(int arg, std::vector<Polygon>& data);
 double calculateArea(std::vector<Point>& points);
-void maxMin(std::string& command, std::string& arg, std::vector<Polygon>& data);
-void count(std::string arg, std::vector<Polygon>& data);
-void count(int arg, std::vector<Polygon>& data);
-void perms(Polygon& etalon, std::vector<Polygon>& data);
-void rightshapes(std::vector<Polygon>& data);
+double maxMinArea(std::string& command, std::vector<Polygon>& data);
+size_t maxMinVertexes(std::string& command, std::vector<Polygon>& data);
+int count(std::string arg, std::vector<Polygon>& data);
+int count(int arg, std::vector<Polygon>& data);
+auto perms(Polygon& etalon, std::vector<Polygon>& data);
+int rightshapes(std::vector<Polygon>& data);
 bool hasRightAngle(std::vector<Point>& figure);
 
 
@@ -89,28 +90,37 @@ int main(int argc, char* argv[]) {
     }
 
     std::string command;
+    std::cout << std::fixed << std::setprecision(1);
     while (std::cin >> command) {
         if (command == "AREA") {
             std::string arg;
             std::cin >> arg;
             if (arg == "ODD" || arg == "EVEN") {
-                areaEvenOdd(arg, data);
+                std::cout << areaEvenOdd(arg, data) << '\n';
             }
             else if (arg == "MEAN") {
-                areaMean(data);
+                std::cout << areaMean(data) << '\n';
+
             }
             else if (isNumber(arg) && std::stoi(arg) >= 3) {
-                areaNum(std::stoi(arg), data);
+                std::cout << areaNum(std::stoi(arg), data) << '\n';
             }
             else {
                 invalidCommand();
             }
         }
         else if (command == "MAX" || command == "MIN") {
+            if (data.size() == static_cast<size_t>(0)) {
+                invalidCommand();
+                continue;
+            }
             std::string arg;
             std::cin >> arg;
-            if (arg == "AREA" || arg == "VERTEXES") {
-                maxMin(command, arg, data);
+            if (arg == "AREA") {
+                maxMinArea(command, data);
+            }
+            if (arg == "VERTEXES") {
+                maxMinVertexes(command, data);
             }
             else {
                 invalidCommand();
@@ -120,10 +130,10 @@ int main(int argc, char* argv[]) {
             std::string arg;
             std::cin >> arg;
             if (arg == "EVEN" || arg == "ODD") {
-                count(arg, data);
+                std::cout << count(arg, data) << '\n';
             }
             else if (isNumber(arg) && std::stoi(arg) >= 3) {
-                count(std::stoi(arg), data);
+                std::cout << count(std::stoi(arg), data) << '\n';
             }
             else {
                 invalidCommand();
@@ -140,11 +150,11 @@ int main(int argc, char* argv[]) {
                 invalidCommand();
             }
             else {
-                perms(etalon, data);
+                std::cout << perms(etalon, data) << '\n';
             }
         }
         else if (command == "RIGHTSHAPES") {
-            rightshapes(data);
+            std::cout << rightshapes(data) << '\n';
         }
         else {
             invalidCommand();
@@ -208,7 +218,7 @@ bool isNumber(std::string& arg) {
     }
 }
 
-void areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
+double areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
     EvenOddFilter filter(arg);
 
     double output = std::accumulate(
@@ -222,13 +232,13 @@ void areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
             return sum;
         }
     );
-    std::cout << std::fixed << std::setprecision(1) << output << '\n';
+    return output;
 }
 
-void areaMean(std::vector<Polygon>& data) {
+double areaMean(std::vector<Polygon>& data) {
     if (data.size() == static_cast<size_t>(0)) {
         invalidCommand();
-        return;
+        return 0;
     }
 
     double output = std::accumulate(
@@ -240,11 +250,10 @@ void areaMean(std::vector<Polygon>& data) {
         }
     );
 
-    std::cout << std::fixed << std::setprecision(1) <<
-        output / static_cast<double>(data.size()) << '\n';
+    return output / static_cast<double>(data.size());
 }
 
-void areaNum(int arg, std::vector<Polygon>& data) {
+double areaNum(int arg, std::vector<Polygon>& data) {
     double output = std::accumulate(
         data.begin(),
         data.end(),
@@ -257,7 +266,7 @@ void areaNum(int arg, std::vector<Polygon>& data) {
         }
     );
 
-    std::cout << std::fixed << std::setprecision(1) << output << '\n';
+    return output;
 }
 
 double calculateArea(std::vector<Point>& points) {
@@ -271,34 +280,27 @@ double calculateArea(std::vector<Point>& points) {
     return std::abs(area) / 2.0;
 }
 
-void maxMin(std::string& command, std::string& arg, std::vector<Polygon>& data) {
-    if (data.size() == static_cast<size_t>(0)) {
-        invalidCommand();
-        return;
-    }
-
-    if (arg == "VERTEXES") {
-        auto output = (command == "MAX")
-            ? std::max_element(data.begin(), data.end(), VertexCountComparator())
-            : std::min_element(data.begin(), data.end(), VertexCountComparator());
-        std::cout << output->points.size() << '\n';
-    }
-
-    else if (arg == "AREA") {
-        auto output = (command == "MAX")
-            ? std::max_element(data.begin(), data.end(), AreaComparator())
-            : std::min_element(data.begin(), data.end(), AreaComparator());
-        std::cout << std::fixed << std::setprecision(1) << calculateArea(output->points) << '\n';
-    }
+double maxMinArea(std::string& command, std::vector<Polygon>& data) {
+    auto output = (command == "MAX")
+        ? std::max_element(data.begin(), data.end(), AreaComparator())
+        : std::min_element(data.begin(), data.end(), AreaComparator());
+    return calculateArea(output->points);
 }
 
-void count(std::string arg, std::vector<Polygon>& data) {
+size_t maxMinVertexes(std::string& command, std::vector<Polygon>& data) {
+    auto output = (command == "MAX")
+        ? std::max_element(data.begin(), data.end(), VertexCountComparator())
+        : std::min_element(data.begin(), data.end(), VertexCountComparator());
+    return output->points.size();
+}
+
+int count(std::string arg, std::vector<Polygon>& data) {
     EvenOddFilter filter(arg);
     int output = std::count_if(data.begin(), data.end(), filter);
-    std::cout << output << '\n';
+    return output;
 }
 
-void count(int arg, std::vector<Polygon>& data) {
+int count(int arg, std::vector<Polygon>& data) {
     int output = std::accumulate(
         data.begin(),
         data.end(),
@@ -310,10 +312,10 @@ void count(int arg, std::vector<Polygon>& data) {
             return sum;
         }
     );
-    std::cout << output << '\n';
+    return output;
 }
 
-void perms(Polygon& etalon, std::vector<Polygon>& data) {
+auto perms(Polygon& etalon, std::vector<Polygon>& data) {
     auto output = std::count_if(data.begin(), data.end(),
         [&etalon](const Polygon& poly) {
             return poly.points.size() == etalon.points.size() &&
@@ -328,15 +330,15 @@ void perms(Polygon& etalon, std::vector<Polygon>& data) {
                         std::placeholders::_2
                     ));
         });
-    std::cout << output << "\n";
+    return output;
 }
 
-void rightshapes(std::vector<Polygon>& data) {
+int rightshapes(std::vector<Polygon>& data) {
     int count = std::count_if(data.begin(), data.end(),
         [](Polygon& figure) {
             return hasRightAngle(figure.points);
         });
-    std::cout << count << "\n";
+    return count;
 }
 
 
