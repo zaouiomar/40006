@@ -62,6 +62,12 @@ struct AreaComparator {
     }
 };
 
+struct EqualPoints {
+    bool operator()(const Point& a, const Point& b) {
+        return a.x == b.x && a.y == b.y;
+    }
+};
+
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -335,16 +341,15 @@ int count(int arg, std::vector<Polygon>& data) {
 }
 
 int perms(Polygon& etalon, std::vector<Polygon>& data) {
+    EqualPoints comparator;
     auto output = std::count_if(data.begin(), data.end(),
-        [&etalon](const Polygon& poly) {
+        [&etalon, &comparator](const Polygon& poly) {
             return poly.points.size() == etalon.points.size() &&
                 std::is_permutation(
                     poly.points.begin(), poly.points.end(),
                     etalon.points.begin(),
                     std::bind(
-                        [](const Point& a, const Point& b) {
-                            return a.x == b.x && a.y == b.y;
-                        },
+                        &EqualPoints::operator(), &comparator,
                         std::placeholders::_1,
                         std::placeholders::_2
                     ));
