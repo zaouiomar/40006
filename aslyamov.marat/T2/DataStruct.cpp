@@ -45,15 +45,14 @@ namespace nspace {
         if (!in) {
             return in;
         }
-        char c[4];
-        c[3] = '\0';
-        in.read(c, 3);
-        if (strcmp(c, "ull") == 0 && in.peek() == ':') {
-            lit.num = value;
-        }
-        else {
+        std::string s;
+        std::getline(in, s, ':');
+        if (s != "ull" && s != "ULL") {
             in.setstate(std::ios::failbit);
+            return in;
         }
+        in.unget();
+        lit.num = value;
         return in;
     }
 
@@ -63,30 +62,33 @@ namespace nspace {
         {
             return in;
         }
-        std::string str = "";
+        char prefix1 = '\0';
+        char prefix2 = '\0';
+        in >> prefix1 >> prefix2;
+        if (!(prefix1 == '0' && (prefix2 == 'b' || prefix2 == 'B'))) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
         char c = '0';
+        unsigned long long value = 0;
         while (in >> c) {
             if (c == ':') {
                 in.unget();
                 break;
             }
-            str = str + c;
-        }
-        if (str.size() < 3) {
-            in.setstate(std::ios::failbit);
-        }
-        if (in && str[0] == '0' && (str[1] == 'b' || str[1] == 'B') && (str[2] == '1' || str[2] == '0')) {
-            for (size_t i = 2; i < str.size(); i++) {
-                if (str[i] != '0' && str[i] != '1') {
-                    in.setstate(std::ios::failbit);
-                }
+            if (c == '0') {
+                value = (value << 1);
             }
-            str = str.substr(2);
-            bin.num = std::stoull(str, nullptr, 2);
+            else if (c == '1') {
+                value = (value << 1) | 1;
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
         }
-        else {
-            in.setstate(std::ios::failbit);
-        }
+        std::cout << value << '\n';
+        bin.num = value;
         return in;
     }
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
