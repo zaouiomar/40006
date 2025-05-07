@@ -91,13 +91,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    for (Polygon& i : data) {
-        for (size_t j = 0; j < i.points.size(); j++) {
-            std::cout << '(' << i.points[j].x << ';' << i.points[j].y << ") ";
-        }
-        std::cout << '\n';
-    }
-
     std::string command;
     std::cout << std::fixed << std::setprecision(1);
     while (std::cin >> command) {
