@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <limits>
 #include <iterator>
+#include <functional>
 
 
 struct Point
@@ -315,9 +316,13 @@ void perms(Polygon& etalon, std::vector<Polygon>& data) {
                 std::is_permutation(
                     poly.points.begin(), poly.points.end(),
                     etalon.points.begin(),
-                    [](const Point& a, const Point& b) {
-                        return a.x == b.x && a.y == b.y;
-                    });
+                    std::bind(
+                        [](const Point& a, const Point& b) {
+                            return a.x == b.x && a.y == b.y;
+                        },
+                        std::placeholders::_1,
+                        std::placeholders::_2
+                    ));
         });
     std::cout << output << "\n";
 }
