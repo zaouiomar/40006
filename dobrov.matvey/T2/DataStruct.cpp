@@ -69,28 +69,8 @@ namespace nspace {
             return in;
         }
 
-        std::string str;
-        char c;
-
-        while (in.get(c)) {
-            if (c == ':' || isspace(c)) {
-                in.unget();
-                break;
-            }
-            str.push_back(c);
-        }
-
-        try {
-            size_t pos;
-            dest.ref = std::stoull(str, &pos, 8);
-
-            if (pos != str.length()) {
-                in.setstate(std::ios::failbit);
-            }
-        }
-        catch (...) {
-            in.setstate(std::ios::failbit);
-        }
+        iofmtguard guard(in);
+        in >> std::oct >> dest.ref;
 
         return in;
     }
@@ -152,7 +132,7 @@ namespace nspace {
 
         iofmtguard fmtguard(out);
         out << "(:key1 " << dest.key1 << "ull:key2 0" << std::oct << dest.key2 <<
-            std::dec << ":key3 \"" << dest.key3 << "\":)";
+            ":key3 \"" << dest.key3 << "\":)";
         return out;
     }
 
