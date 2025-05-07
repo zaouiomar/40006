@@ -35,7 +35,7 @@ double maxMinArea(std::string& command, std::vector<Polygon>& data);
 size_t maxMinVertexes(std::string& command, std::vector<Polygon>& data);
 int count(std::string arg, std::vector<Polygon>& data);
 int count(int arg, std::vector<Polygon>& data);
-auto perms(Polygon& etalon, std::vector<Polygon>& data);
+int perms(Polygon& etalon, std::vector<Polygon>& data);
 int rightshapes(std::vector<Polygon>& data);
 bool hasRightAngle(std::vector<Point>& figure);
 
@@ -315,7 +315,7 @@ int count(int arg, std::vector<Polygon>& data) {
     return output;
 }
 
-auto perms(Polygon& etalon, std::vector<Polygon>& data) {
+int perms(Polygon& etalon, std::vector<Polygon>& data) {
     auto output = std::count_if(data.begin(), data.end(),
         [&etalon](const Polygon& poly) {
             return poly.points.size() == etalon.points.size() &&
@@ -330,7 +330,7 @@ auto perms(Polygon& etalon, std::vector<Polygon>& data) {
                         std::placeholders::_2
                     ));
         });
-    return output;
+    return static_cast<int>(output);
 }
 
 int rightshapes(std::vector<Polygon>& data) {
