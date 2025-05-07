@@ -87,7 +87,6 @@ namespace nspace {
                 return in;
             }
         }
-        std::cout << value << '\n';
         bin.num = value;
         return in;
     }
