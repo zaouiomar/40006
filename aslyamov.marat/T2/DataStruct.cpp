@@ -39,29 +39,20 @@ namespace nspace {
         {
             return in;
         }
-        std::string str = "";
-        char c = '0';
-        while (in.get(c)) {
-            if (c == ':') {
-                in.unget();
-                break;
-            }
-            str = str + c;
+        unsigned long long value = 0;
+        in >> value;
+        if (!in) {
+            return in;
         }
-        if (str.size() < 4) {
+        char c[4];
+        c[3] = '\0';
+        in.read(c, 3);
+        if (strcmp(c, "ull") == 0 && in.peek() == ':') {
+            lit.num = value;
+        }
+        else {
             in.setstate(std::ios::failbit);
         }
-        if (in && str[str.size() - 1] == 'l' && str[str.size() - 2] == 'l' && str[str.size() - 3] == 'u' &&
-            (str[str.size() - 4] >= '0' && str[str.size() - 4] <= '9')) {
-            for (size_t i = 0; i < str.size() - 3; i++) {
-                if (str[i] < '0' || str[i] > '9') {
-                    in.setstate(std::ios::failbit);
-                }
-            }
-            lit.num = std::stoull(str, nullptr, 10);
-        }
-        else
-            in.setstate(std::ios::failbit);
         return in;
     }
 
@@ -92,14 +83,14 @@ namespace nspace {
             str = str.substr(2);
             bin.num = std::stoull(str, nullptr, 2);
         }
-        else
+        else {
             in.setstate(std::ios::failbit);
+        }
         return in;
     }
     std::istream& operator>>(std::istream& in, DataStruct& dest) {
         std::istream::sentry sentry(in);
-        if (!sentry)
-        {
+        if (!sentry) {
             return in;
         }
         DataStruct input;
@@ -161,9 +152,7 @@ namespace nspace {
         if (a.key2 != b.key2) {
             return a.key2 < b.key2;
         }
-
         return a.key3 < b.key3;
-
     }
 
     iofmtguard::iofmtguard(std::basic_ios<char>& s) :
