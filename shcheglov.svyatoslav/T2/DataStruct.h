@@ -3,7 +3,6 @@
 
 #include <iostream>
 
-
 namespace nspace
 {
     struct DataStruct

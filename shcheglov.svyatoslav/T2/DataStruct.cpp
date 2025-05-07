@@ -1,4 +1,4 @@
-#include "datastruct.h"
+#include "DataStruct.h"
 #include <iomanip>
 #include <string>
 
@@ -30,10 +30,10 @@ namespace nspace
         return in >> dest.ref >> DelimiterIO{ 'd' };
     }
 
-    std::istream& operator>>(std::istream& in, RationalIO&& dest) 
+    std::istream& operator>>(std::istream& in, RationalIO&& dest)
     {
         std::istream::sentry sentry(in);
-        if (!sentry) 
+        if (!sentry)
         {
             return in;
         }
@@ -49,8 +49,8 @@ namespace nspace
 
         in >> DelimiterIO{ ':' } >> DelimiterIO{ ')' };
 
-        if (in && d != 0) 
-        { 
+        if (in && d != 0)
+        {
             dest.ref = { n, d };
 
         }
@@ -84,7 +84,7 @@ namespace nspace
 
         std::string data = "";
 
-        if ((in >> data ) && (data != dest.exp))
+        if ((in >> data) && (data != dest.exp))
         {
             in.setstate(std::ios::failbit);
         }
@@ -92,7 +92,7 @@ namespace nspace
         return in;
     }
 
-    std::istream& operator>>(std::istream& in, DataStruct& dest) 
+    std::istream& operator>>(std::istream& in, DataStruct& dest)
     {
         std::istream::sentry sentry(in);
         if (!sentry)
@@ -112,7 +112,7 @@ namespace nspace
                 in >> DoubleIO{ temp.key1 } >> DelimiterIO{ ':' };
                 hasKey1 = true;
             }
-            else if (field == "key2") 
+            else if (field == "key2")
             {
                 in >> RationalIO{ temp.key2 } >> DelimiterIO{ ':' };
                 hasKey2 = true;
@@ -147,7 +147,9 @@ namespace nspace
             return out;
         }
         iofmtguard fmtguard(out);
-        out << "(:key1 " << std::fixed << std::setprecision(1) << src.key1 << "d:key2 (:N " << src.key2.first << ":D " << src.key2.second << ":):key3 \"" << src.key3 << "\":)";
+        out << "(:key1 " << std::fixed << std::setprecision(1) << src.key1 << "d:key2 (:N "
+            << src.key2.first << ":D " << src.key2.second << ":):key3 \""
+            << src.key3 << "\":)";
         return out;
     }
 
