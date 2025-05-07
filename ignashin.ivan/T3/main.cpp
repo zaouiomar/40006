@@ -44,7 +44,7 @@ bool hasRightAngle(std::vector<Point>& figure);
 
 struct EvenOddFilter {
     int mod;
-    EvenOddFilter(std::string& arg) : mod(arg == "EVEN" ? 0 : 1) {}
+    EvenOddFilter(bool arg) : mod(arg ? 0 : 1) {}
     bool operator()(const Polygon& figure) {
         return static_cast<int>(figure.points.size()) % 2 == mod;
     }
@@ -243,7 +243,7 @@ bool isNumber(std::string& arg) {
 }
 
 double areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
-    EvenOddFilter filter(arg);
+    EvenOddFilter filter((arg == "EVEN") ? true : false);
 
     double output = std::accumulate(
         data.begin(),
@@ -314,7 +314,7 @@ size_t maxMinVertexes(std::string& command, std::vector<Polygon>& data) {
 }
 
 int count(std::string arg, std::vector<Polygon>& data) {
-    EvenOddFilter filter(arg);
+    EvenOddFilter filter((arg == "EVEN") ? true : false);
     int output = std::count_if(data.begin(), data.end(), filter);
     return output;
 }
