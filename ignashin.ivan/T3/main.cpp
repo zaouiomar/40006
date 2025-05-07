@@ -26,6 +26,8 @@ std::istream& operator>>(std::istream& in, Polygon& poly);
 
 
 void invalidCommand();
+bool checkNextChar(std::istream& in);
+bool is_empty(std::vector<Polygon>& data);
 bool isNumber(std::string& arg);
 double areaEvenOdd(std::string& arg, std::vector<Polygon>& data);
 double areaMean(std::vector<Polygon>& data);
@@ -89,6 +91,13 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    for (Polygon& i : data) {
+        for (size_t j = 0; j < i.points.size(); j++) {
+            std::cout << '(' << i.points[j].x << ';' << i.points[j].y << ") ";
+        }
+        std::cout << '\n';
+    }
+
     std::string command;
     std::cout << std::fixed << std::setprecision(1);
     while (std::cin >> command) {
@@ -99,8 +108,11 @@ int main(int argc, char* argv[]) {
                 std::cout << areaEvenOdd(arg, data) << '\n';
             }
             else if (arg == "MEAN") {
+                if (is_empty(data)) {
+                    invalidCommand();
+                    continue;
+                }
                 std::cout << areaMean(data) << '\n';
-
             }
             else if (isNumber(arg) && std::stoi(arg) >= 3) {
                 std::cout << areaNum(std::stoi(arg), data) << '\n';
@@ -110,17 +122,17 @@ int main(int argc, char* argv[]) {
             }
         }
         else if (command == "MAX" || command == "MIN") {
-            if (data.size() == static_cast<size_t>(0)) {
+            if (is_empty(data)) {
                 invalidCommand();
                 continue;
             }
             std::string arg;
             std::cin >> arg;
             if (arg == "AREA") {
-                maxMinArea(command, data);
+                std::cout << maxMinArea(command, data) << '\n';
             }
-            if (arg == "VERTEXES") {
-                maxMinVertexes(command, data);
+            else if (arg == "VERTEXES") {
+                std::cout << maxMinVertexes(command, data) << '\n';
             }
             else {
                 invalidCommand();
@@ -187,18 +199,19 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
     }
 
     for (int i = 0; i < count; ++i) {
+        char nextChar = in.peek();
+        if (nextChar == '\n') {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
         Point p;
         if (!(in >> p)) {
-            in.setstate(std::ios::failbit);
             return in;
         }
         poly.points.push_back(p);
     }
 
-    char nextChar = in.peek();
-    if (nextChar != '\n' && nextChar != EOF) {
-        in.setstate(std::ios::failbit);
-    }
+    checkNextChar(in);
 
     return in;
 }
@@ -206,6 +219,24 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
 void invalidCommand() {
     std::cout << "<INVALID COMMAND>\n";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+bool checkNextChar(std::istream& in)
+{
+    char nextChar = in.peek();
+    if (nextChar != '\n' && nextChar != EOF) {
+        in.setstate(std::ios::failbit);
+        return false;
+    }
+    return true;
+}
+
+bool is_empty(std::vector<Polygon>& data)
+{
+    if (data.size() == static_cast<size_t>(0)) {
+        return true;
+    }
+    return false;
 }
 
 bool isNumber(std::string& arg) {
@@ -236,11 +267,6 @@ double areaEvenOdd(std::string& arg, std::vector<Polygon>& data) {
 }
 
 double areaMean(std::vector<Polygon>& data) {
-    if (data.size() == static_cast<size_t>(0)) {
-        invalidCommand();
-        return 0;
-    }
-
     double output = std::accumulate(
         data.begin(),
         data.end(),
