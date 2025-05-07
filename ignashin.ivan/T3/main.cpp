@@ -88,7 +88,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-
     std::string command;
     while (std::cin >> command) {
         if (command == "AREA") {
@@ -184,6 +183,11 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
             return in;
         }
         poly.points.push_back(p);
+    }
+
+    char nextChar = in.peek();
+    if (nextChar != '\n' && nextChar != EOF) {
+        in.setstate(std::ios::failbit);
     }
 
     return in;
