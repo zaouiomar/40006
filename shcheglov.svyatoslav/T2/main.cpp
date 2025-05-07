@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <limits>
 #include <string>
 #include <cassert>
 #include <iterator>
