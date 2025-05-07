@@ -7,6 +7,7 @@
 #include <utility>
 #include <iomanip>
 #include "DataStruct.h"
+#include <cstring>
 
 namespace nspace {
     std::istream& operator>>(std::istream& in, DelimiterIO&& dest) {
