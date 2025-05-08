@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <iomanip>
 
 struct Point {
     int x_, y_;
