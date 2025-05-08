@@ -9,6 +9,8 @@
 #include <cmath>
 #include <functional>
 #include <iomanip>
+#include <limits>
+#include <limits>
 
 struct Point {
     int x_, y_;
