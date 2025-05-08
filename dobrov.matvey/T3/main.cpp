@@ -131,7 +131,7 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons) {
             return;
         }
         if (polygons.empty()) {
-            std::cout << "<INVALID COMMAND>\n";
+            std::cout << "0.0\n";
             return;
         }
 
@@ -149,7 +149,7 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons) {
             return;
         }
         if (polygons.empty()) {
-            std::cout << "0.0\n";
+            std::cout << "<INVALID COMMAND>\n";
             return;
         }
 
