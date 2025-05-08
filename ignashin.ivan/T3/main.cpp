@@ -26,7 +26,6 @@ std::istream& operator>>(std::istream& in, Polygon& poly);
 
 
 void invalidCommand();
-bool checkNextChar(std::istream& in);
 bool is_empty(std::vector<Polygon>& data);
 bool isNumber(std::string& arg);
 double areaEvenOdd(std::string& arg, std::vector<Polygon>& data);
@@ -210,7 +209,10 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
         poly.points.push_back(p);
     }
 
-    checkNextChar(in);
+    char nextChar = in.peek();
+    if (nextChar != '\n' && nextChar != EOF) {
+        in.setstate(std::ios::failbit);
+    }
 
     return in;
 }
@@ -218,16 +220,6 @@ std::istream& operator>>(std::istream& in, Polygon& poly) {
 void invalidCommand() {
     std::cout << "<INVALID COMMAND>\n";
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-}
-
-bool checkNextChar(std::istream& in)
-{
-    char nextChar = in.peek();
-    if (nextChar != '\n' && nextChar != EOF) {
-        in.setstate(std::ios::failbit);
-        return false;
-    }
-    return true;
 }
 
 bool is_empty(std::vector<Polygon>& data)
