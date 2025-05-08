@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
     );
 
     std::string line;
+    std::cout << std::fixed << std::setprecision(1);
     while (std::getline(std::cin, line)) {
         if (line.empty()) continue;
 
