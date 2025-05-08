@@ -153,15 +153,11 @@ int count(std::string arg, std::vector<Polygon>& data) {
 }
 
 int count(int arg, std::vector<Polygon>& data) {
-    int output = std::accumulate(
+    int output = std::count_if(
         data.begin(),
         data.end(),
-        0.0,
-        [arg](double sum, Polygon& figure) {
-            if (figure.points.size() == static_cast<size_t>(arg)) {
-                return sum + 1;
-            }
-            return sum;
+        [arg](Polygon& figure) {
+            return figure.points.size() == static_cast<size_t>(arg);
         }
     );
     return output;
