@@ -1,4 +1,5 @@
-#pragma once
+#ifndef POLYGON_H_
+#define POLYGON_H_
 #include <vector>
 
 
@@ -11,3 +12,5 @@ struct Polygon
 {
     std::vector< Point > points;
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FUNCTIONS_H_
+#define FUNCTIONS_H_
 #include <vector>
 #include <sstream>
 #include "Polygon.h"
@@ -21,3 +22,5 @@ int count(int arg, std::vector<Polygon>& data);
 int perms(Polygon& etalon, std::vector<Polygon>& data);
 int rightshapes(std::vector<Polygon>& data);
 bool hasRightAngle(std::vector<Point>& figure);
+
+#endif

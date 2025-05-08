@@ -1,4 +1,5 @@
-#pragma once
+#ifndef FUNCTORS_H_
+#define FUNCTORS_H_
 #include "Polygon.h"
 #include "Functions.h"
 
@@ -28,3 +29,5 @@ struct EqualPoints {
         return a.x == b.x && a.y == b.y;
     }
 };
+
+#endif

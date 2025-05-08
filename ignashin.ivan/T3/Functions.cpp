@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <limits>
 
 
 std::istream& operator>>(std::istream& in, Point& p) {
