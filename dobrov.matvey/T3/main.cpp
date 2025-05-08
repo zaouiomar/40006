@@ -172,7 +172,7 @@ void handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons) {
 
         double sum = std::accumulate(polygons.begin(), polygons.end(), 0.0,
             [n](double acc, const Polygon& p) {
-                return (p.points_.size() == n) ? acc + calculateArea(p.points_) : acc;
+                return (static_cast<int>(p.points_.size()) == n) ? acc + calculateArea(p.points_) : acc;
             });
         std::cout << sum << "\n";
     }
