@@ -63,11 +63,18 @@ int main(int argc, char* argv[]) {
 
     std::vector<Polygon> polygons;
 
-    std::copy(
-        std::istream_iterator<Polygon>(input),
-        std::istream_iterator<Polygon>(),
-        std::back_inserter(polygons)
-    );
+    while (!input.eof()) {
+        std::copy(
+            std::istream_iterator<Polygon>(input),
+            std::istream_iterator<Polygon>(),
+            std::back_inserter(polygons)
+        );
+
+        if (input.fail() && !input.eof()) {
+            input.clear();
+            input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+    }
 
     std::string line;
     std::cout << std::fixed << std::setprecision(1);
