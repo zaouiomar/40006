@@ -1,4 +1,4 @@
-#ifndef FUNCTIUONS_H_
+#ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 #include "Geometry.h"
 
@@ -9,4 +9,4 @@ void handleEcho(std::istringstream& iss, std::vector<Polygon>& polygons);
 void handleRightShapes(const std::vector<Polygon>& polygons);
 bool hasNoMoreArguments(std::istringstream& iss);
 
-#endif FUNCTIONS_H_
+#endif
