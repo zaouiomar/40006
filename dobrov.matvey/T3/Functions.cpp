@@ -6,6 +6,7 @@
 #include <functional>
 #include <algorithm>
 #include <numeric>
+#include <iomanip>
 
 std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons) {
     std::string arg;
@@ -29,7 +30,9 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
             std::bind(&AddFilteredArea::operator(), adder,
                 std::placeholders::_1, std::placeholders::_2)
         );
-        return std::to_string(sum);
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << sum;
+        return out.str();
     }
 
     else if (arg == "MEAN") {
@@ -43,7 +46,9 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
             std::bind(&AddArea::operator(), adder,
                 std::placeholders::_1, std::placeholders::_2)
         );
-        return std::to_string(total / polygons.size());
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << total / polygons.size();
+        return out.str();
     }
 
     else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
@@ -58,7 +63,9 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
             std::bind(&AddSpecificVertexCountArea::operator(), adder,
                 std::placeholders::_1, std::placeholders::_2)
         );
-        return std::to_string(sum);
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << sum;
+        return out.str();
     }
 
     return "<INVALID COMMAND>";
@@ -75,9 +82,8 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
         return "<INVALID COMMAND>";
     }
 
-    if (polygons.empty()) {
-        std::cout << "<INVALID COMMAND>\n";
-        return;
+    if (polygons.empty()) { 
+        return "<INVALID COMMAND>";
     }
 
     if (arg == "AREA") {
@@ -90,7 +96,9 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
                 [](const Polygon& a, const Polygon& b) {
                     return calculateArea(a.points_) < calculateArea(b.points_);
                 });
-        return std::to_string(calculateArea(it->points_));
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << calculateArea(it->points_);
+        return out.str();
     }
     else if (arg == "VERTEXES") {
         auto it = (isMax)
@@ -102,7 +110,9 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
                 [](const Polygon& a, const Polygon& b) {
                     return a.points_.size() < b.points_.size();
                 });
-        return std::to_string(it->points_.size());
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << it->points_.size();
+        return out.str();
     }
     else {
         return "<INVALID COMMAND>";
@@ -118,7 +128,10 @@ std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& pol
     if (arg == "EVEN" || arg == "ODD") {
         EvenOddFilter filter(arg);
         int count = std::count_if(polygons.begin(), polygons.end(), filter);
-        return std::to_string(count);
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << count;
+        return out.str();
+
     }
     else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
         int n = std::stoi(arg);
@@ -130,7 +143,9 @@ std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& pol
             [n](const Polygon& p) {
                 return static_cast<int>(p.points_.size()) == n;
             });
-        return std::to_string(count);
+        std::ostringstream out;
+        out << std::fixed << std::setprecision(1) << count;
+        return out.str();
     }
     else {
         return "<INVALID COMMAND>";
@@ -151,7 +166,9 @@ std::string handleEcho(std::istringstream& iss, std::vector<Polygon>& polygons) 
         }
     }
 
-    return std::to_string(inserted);
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(1) << inserted;
+    return out.str();
 }
 
 bool hasRightAngle(const Polygon& p) {
@@ -176,5 +193,7 @@ bool hasRightAngle(const Polygon& p) {
 
 std::string handleRightShapes(const std::vector<Polygon>& polygons) {
     int count = std::count_if(polygons.begin(), polygons.end(), hasRightAngle);
-    return std::to_string(count);
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(1) << count;
+    return out.str();
 }

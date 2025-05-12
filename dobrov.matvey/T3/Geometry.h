@@ -45,9 +45,7 @@ struct AddSpecificVertexCountArea {
 };
 
 struct AddArea {
-    double operator()(double acc, const Polygon& p) const {
-        return acc + calculateArea(p.points_);
-    }
+    double operator()(double acc, const Polygon& p) const;
 };
 
 #endif
