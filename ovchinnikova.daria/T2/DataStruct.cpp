@@ -44,34 +44,23 @@ namespace nspace {
             return in;
         }
 
-        std::string str = "";
-        char c;
-
-        while (in.get(c)) {
-            if (c == ':' || isspace(c)) {
-                in.unget();
-                break;
-            }
-            str.push_back(c);
+        unsigned long long value;
+        in >> value;
+        if (!in) {
+            return in;
         }
 
-        size_t length = str.length();
-        if (length < 4 || (str.substr(length - 3, 3) != "ull" && str.substr(length - 3, 3) != "ULL")) {
+        char s1, s2, s3;
+        in.get(s1).get(s2).get(s3);
+
+        if (!((s1 == 'u' && s2 == 'l' && s3 == 'l') || (s1 == 'U' && s2 == 'L' && s3 == 'L'))) {
             in.setstate(std::ios::failbit);
             return in;
         }
 
-        std::string numStr = str.substr(0, length - 3);
-        unsigned long long value = 0;
-        std::stringstream ss(numStr);
-        ss >> value;
-
-        if (ss.fail()) {
-            in.setstate(std::ios::failbit);
-            return in;
+        if (in) {
+            dest.ref = value;
         }
-
-        dest.ref = value;
         return in;
     }
 
