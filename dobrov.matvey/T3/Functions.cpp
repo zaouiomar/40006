@@ -81,7 +81,7 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
         return "<INVALID COMMAND>";
     }
 
-    if (polygons.empty()) { 
+    if (polygons.empty()) {
         return "<INVALID COMMAND>";
     }
 
@@ -124,14 +124,16 @@ std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& pol
         return "<INVALID COMMAND>";
     }
 
+
+
     if (arg == "EVEN" || arg == "ODD") {
         EvenOddFilter filter(arg);
         int count = std::count_if(polygons.begin(), polygons.end(), filter);
         std::ostringstream out;
         out << std::fixed << std::setprecision(1) << count;
         return out.str();
-
     }
+
     else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
         int n = std::stoi(arg);
         if (n < 3) {
