@@ -45,7 +45,6 @@ namespace nspace
         in >> n;
 
         in >> DelimiterIO{ ':' } >> LabelIO{ "D" } >> d;
-        in >> d;
 
         in >> DelimiterIO{ ':' } >> DelimiterIO{ ')' };
 
