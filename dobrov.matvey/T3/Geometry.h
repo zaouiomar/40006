@@ -34,18 +34,16 @@ struct AddFilteredArea {
 
     AddFilteredArea(const EvenOddFilter& filter);
 
-    double operator()(double acc, const Polygon& p) const;
+    double apply(double acc, const Polygon& p) const;
 };
 
 struct AddSpecificVertexCountArea {
     int n_;
     AddSpecificVertexCountArea(int n);
 
-    double operator()(double acc, const Polygon& p) const;
+    double apply(double acc, const Polygon& p) const;
 };
 
-struct AddArea {
-    double operator()(double acc, const Polygon& p) const;
-};
+double AddArea(double acc, const Polygon& p);
 
 #endif

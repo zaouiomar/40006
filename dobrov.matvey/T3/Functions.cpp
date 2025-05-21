@@ -27,7 +27,7 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
 
         double sum = std::accumulate(
             polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddFilteredArea::operator(), adder,
+            std::bind(&AddFilteredArea::apply, adder,
                 std::placeholders::_1, std::placeholders::_2)
         );
         std::ostringstream out;
@@ -40,10 +40,9 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
             return "<INVALID COMMAND>";
         }
 
-        AddArea adder;
         double total = std::accumulate(
             polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddArea::operator(), adder,
+            std::bind(&AddArea,
                 std::placeholders::_1, std::placeholders::_2)
         );
         std::ostringstream out;
@@ -60,7 +59,7 @@ std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& poly
         AddSpecificVertexCountArea adder(n);
         double sum = std::accumulate(
             polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddSpecificVertexCountArea::operator(), adder,
+            std::bind(&AddSpecificVertexCountArea::apply, adder,
                 std::placeholders::_1, std::placeholders::_2)
         );
         std::ostringstream out;
@@ -82,7 +81,7 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
         return "<INVALID COMMAND>";
     }
 
-    if (polygons.empty()) {
+    if (polygons.empty()) { 
         return "<INVALID COMMAND>";
     }
 

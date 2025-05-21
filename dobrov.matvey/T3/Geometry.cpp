@@ -57,18 +57,17 @@ bool EvenOddFilter::operator()(const Polygon& figure) const {
     return static_cast<int>(figure.points_.size()) % 2 == mod_;
 }
 
-
-double AddArea::operator()(double acc, const Polygon& p) const {
+double AddArea(double acc, const Polygon & p) {
     return acc + calculateArea(p.points_);
-}
-
-double AddFilteredArea::operator()(double acc, const Polygon& p) const {
-    return filter_(p) ? acc + calculateArea(p.points_) : acc;
 }
 
 AddFilteredArea::AddFilteredArea(const EvenOddFilter& filter) : filter_(filter) {}
 
-double AddSpecificVertexCountArea::operator()(double acc, const Polygon& p) const {
+double AddFilteredArea::apply(double acc, const Polygon& p) const {
+    return filter_(p) ? acc + calculateArea(p.points_) : acc;
+}
+
+double AddSpecificVertexCountArea::apply(double acc, const Polygon& p) const {
     return (static_cast<int>(p.points_.size()) == n_) ? acc + calculateArea(p.points_) : acc;
 }
 
