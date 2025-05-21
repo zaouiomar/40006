@@ -172,9 +172,15 @@ int perms(Polygon& etalon, std::vector<Polygon>& data) {
                     poly.points.begin(), poly.points.end(),
                     etalon.points.begin(),
                     std::bind(
-                        &EqualPoints::operator(), &comparator,
-                        std::placeholders::_1,
-                        std::placeholders::_2
+                        std::logical_and<bool>(),
+                        std::bind(std::equal_to<int>(),
+                            std::bind(&Point::x, std::placeholders::_1),
+                            std::bind(&Point::x, std::placeholders::_2)
+                        ),
+                        std::bind(std::equal_to<int>(),
+                            std::bind(&Point::y, std::placeholders::_1),
+                            std::bind(&Point::y, std::placeholders::_2)
+                        )
                     ));
         });
     return static_cast<int>(output);
