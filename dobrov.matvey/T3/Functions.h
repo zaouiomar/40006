@@ -7,6 +7,6 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
 std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons);
 std::string handleEcho(std::istringstream& iss, std::vector<Polygon>& polygons);
 std::string handleRightShapes(const std::vector<Polygon>& polygons);
-bool hasNoMoreArguments(std::istringstream& iss);
+bool hasMoreArguments(std::istringstream& iss);
 
 #endif
