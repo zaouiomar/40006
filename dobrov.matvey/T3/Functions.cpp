@@ -81,7 +81,7 @@ std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& 
         return "<INVALID COMMAND>";
     }
 
-    if (polygons.empty()) { 
+    if (polygons.empty()) {
         return "<INVALID COMMAND>";
     }
 
