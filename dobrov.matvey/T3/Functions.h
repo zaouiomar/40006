@@ -2,11 +2,15 @@
 #define FUNCTIONS_H_
 #include"Geometry.h"
 
-std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons);
-std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& polygons, bool isMax);
-std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons);
-std::string handleEcho(std::istringstream& iss, std::vector<Polygon>& polygons);
-std::string handleRightShapes(const std::vector<Polygon>& polygons);
-bool hasMoreArguments(std::istringstream& iss);
+double computeAreaEvenOdd(const std::vector<Polygon>& polygons, Parity parity);
+double computeAreaMean(const std::vector<Polygon>& polygons);
+double computeAreaByVertexCount(const std::vector<Polygon>& polygons, int n);
+double computeExtremumArea(const std::vector<Polygon>& polygons, bool isMax);
+int computeExtremumVertexes(const std::vector<Polygon>& polygons, bool isMax);
+int computeCountEvenOdd(const std::vector<Polygon>& polygons, Parity parity);
+int computeCountByVertexCount(const std::vector<Polygon>& polygons, int n);
+int computeEcho(std::vector<Polygon>& polygons, const Polygon& target);
+int countRightAngleShapes(const std::vector<Polygon>& polygons);
+void invalidCommand();
 
 #endif

@@ -8,166 +8,96 @@
 #include <numeric>
 #include <iomanip>
 
-std::string handleArea(std::istringstream& iss, const std::vector<Polygon>& polygons) {
-    std::string arg;
-    if (!(iss >> arg)) {
-        return "<INVALID COMMAND>";
-    }
-
-    if (arg == "ODD" || arg == "EVEN") {
-        if (hasMoreArguments(iss)) {
-            return "<INVALID COMMAND>";
-        }
-        if (polygons.empty()) {
-            return "0.0";
-        }
-
-        EvenOddFilter filter(arg);
-        AddFilteredArea adder(filter);
-
-        double sum = std::accumulate(
-            polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddFilteredArea::apply, adder,
-                std::placeholders::_1, std::placeholders::_2)
-        );
-        std::ostringstream out;
-        out << std::fixed << std::setprecision(1) << sum;
-        return out.str();
-    }
-
-    else if (arg == "MEAN") {
-        if (hasMoreArguments(iss) || polygons.empty()) {
-            return "<INVALID COMMAND>";
-        }
-
-        double total = std::accumulate(
-            polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddArea,
-                std::placeholders::_1, std::placeholders::_2)
-        );
-        std::ostringstream out;
-        out << std::fixed << std::setprecision(1) << total / polygons.size();
-        return out.str();
-    }
-
-    else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
-        int n = std::stoi(arg);
-        if (n < 3 || hasMoreArguments(iss)) {
-            return "<INVALID COMMAND>";
-        }
-
-        AddSpecificVertexCountArea adder(n);
-        double sum = std::accumulate(
-            polygons.begin(), polygons.end(), 0.0,
-            std::bind(&AddSpecificVertexCountArea::apply, adder,
-                std::placeholders::_1, std::placeholders::_2)
-        );
-        std::ostringstream out;
-        out << std::fixed << std::setprecision(1) << sum;
-        return out.str();
-    }
-
-    return "<INVALID COMMAND>";
+double computeAreaEvenOdd(const std::vector<Polygon>& polygons, Parity parity) {
+    AddFilteredArea adder(parity);
+    return std::accumulate(
+        polygons.begin(), polygons.end(), 0.0,
+        std::bind(&AddFilteredArea::apply, adder,
+            std::placeholders::_1, std::placeholders::_2));
 }
 
-bool hasMoreArguments(std::istringstream& iss) {
-    std::string leftover;
-    return static_cast<bool>(iss >> leftover);
+double computeAreaMean(const std::vector<Polygon>& polygons) {
+    double total = std::accumulate(
+        polygons.begin(), polygons.end(), 0.0,
+        std::bind(&AddArea, std::placeholders::_1, std::placeholders::_2)
+    );
+    return total / polygons.size();
 }
 
-std::string handleExtremum(std::istringstream& iss, const std::vector<Polygon>& polygons, bool isMax) {
-    std::string arg;
-    if (!(iss >> arg)) {
-        return "<INVALID COMMAND>";
-    }
-
-    if (polygons.empty()) {
-        return "<INVALID COMMAND>";
-    }
-
-    if (arg == "AREA") {
-        auto it = (isMax)
-            ? std::max_element(polygons.begin(), polygons.end(),
-                [](const Polygon& a, const Polygon& b) {
-                    return calculateArea(a.points_) < calculateArea(b.points_);
-                })
-            : std::min_element(polygons.begin(), polygons.end(),
-                [](const Polygon& a, const Polygon& b) {
-                    return calculateArea(a.points_) < calculateArea(b.points_);
-                });
-        std::ostringstream out;
-        out << std::fixed << std::setprecision(1) << calculateArea(it->points_);
-        return out.str();
-    }
-    else if (arg == "VERTEXES") {
-        auto it = (isMax)
-            ? std::max_element(polygons.begin(), polygons.end(),
-                [](const Polygon& a, const Polygon& b) {
-                    return a.points_.size() < b.points_.size();
-                })
-            : std::min_element(polygons.begin(), polygons.end(),
-                [](const Polygon& a, const Polygon& b) {
-                    return a.points_.size() < b.points_.size();
-                });
-        return std::to_string(it->points_.size());
-    }
-    else {
-        return "<INVALID COMMAND>";
-    }
+double computeAreaByVertexCount(const std::vector<Polygon>& polygons, int n) {
+    AddSpecificVertexCountArea adder(n);
+    return std::accumulate(
+        polygons.begin(), polygons.end(), 0.0,
+        std::bind(&AddSpecificVertexCountArea::apply, adder,
+            std::placeholders::_1, std::placeholders::_2));
 }
 
-std::string handleCount(std::istringstream& iss, const std::vector<Polygon>& polygons) {
-    std::string arg;
-    if (!(iss >> arg) || hasMoreArguments(iss)) {
-        return "<INVALID COMMAND>";
-    }
+double computeExtremumArea(const std::vector<Polygon>& polygons, bool isMax) {
+    auto cmpArea = [](const Polygon& a, const Polygon& b) {
+        return calculateArea(a.points_) < calculateArea(b.points_);
+        };
 
-    if (arg == "EVEN" || arg == "ODD") {
-        EvenOddFilter filter(arg);
-        int count = std::count_if(polygons.begin(), polygons.end(), filter);
-        return std::to_string(count);
-    }
-    else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
-        int n = std::stoi(arg);
-        if (n < 3) {
-            return "<INVALID COMMAND>";
-        }
-
-        int count = std::count_if(polygons.begin(), polygons.end(),
-            [n](const Polygon& p) {
-                return static_cast<int>(p.points_.size()) == n;
-            });
-        return std::to_string(count);
-    }
-    else {
-        return "<INVALID COMMAND>";
-    }
+    auto it = isMax
+        ? std::max_element(polygons.begin(), polygons.end(), cmpArea)
+        : std::min_element(polygons.begin(), polygons.end(), cmpArea);
+    return calculateArea(it->points_);
 }
 
-std::string handleEcho(std::istringstream& iss, std::vector<Polygon>& polygons) {
-    Polygon target;
-    if (!(iss >> target) || hasMoreArguments(iss)) {
-        return "<INVALID COMMAND>";
-    }
+int computeExtremumVertexes(const std::vector<Polygon>& polygons, bool isMax) {
+    auto cmpVertexes = [](const Polygon& a, const Polygon& b) {
+        return a.points_.size() < b.points_.size();
+        };
 
-    int inserted = 0;
-    for (auto it = polygons.begin(); it != polygons.end(); it++) {
-        if (*it == target) {
-            it = polygons.insert(std::next(it), target);
-            inserted++;
-        }
-    }
+    auto it = isMax
+        ? std::max_element(polygons.begin(), polygons.end(), cmpVertexes)
+        : std::min_element(polygons.begin(), polygons.end(), cmpVertexes);
+    return it->points_.size();
+}
 
-    return std::to_string(inserted);
+int computeCountEvenOdd(const std::vector<Polygon>& polygons, Parity parity) {
+    return std::count_if(polygons.begin(), polygons.end(),
+        [parity](const Polygon& p) {
+            int size = static_cast<int>(p.points_.size());
+            if (parity == Parity::EVEN) {
+                return size % 2 == 0;
+            }
+            else {
+                return size % 2 == 1;
+            }
+        });
+}
+
+int computeCountByVertexCount(const std::vector<Polygon>& polygons, int n) {
+    return std::count_if(polygons.begin(), polygons.end(),
+        [n](const Polygon& p) {
+            return static_cast<int>(p.points_.size()) == n;
+        });
+}
+
+int computeEcho(std::vector<Polygon>& polygons, const Polygon& target) {
+    std::vector<size_t> indices;
+    std::transform(polygons.begin(), polygons.end(), std::back_inserter(indices),
+        [&](const Polygon& p) -> size_t {
+            return (p == target) ? (&p - &polygons[0]) : std::numeric_limits<size_t>::max();
+        });
+
+    indices.erase(std::remove(indices.begin(), indices.end(), std::numeric_limits<size_t>::max()), indices.end());
+
+    std::accumulate(indices.rbegin(), indices.rend(), 0, [&](int acc, size_t idx) {
+        polygons.insert(polygons.begin() + idx + 1, target);
+        return acc + 1;
+        });
+
+    return static_cast<int>(indices.size());
 }
 
 bool hasRightAngle(const Polygon& p) {
     const auto& pts = p.points_;
     size_t n = pts.size();
 
-    for (size_t i = 0; i < n; i++) {
+    return std::any_of(pts.begin(), pts.end(), [&](const Point& b) {
+        size_t i = &b - &pts[0];
         Point a = pts[(i + n - 1) % n];
-        Point b = pts[i];
         Point c = pts[(i + 1) % n];
 
         int dx1 = b.x_ - a.x_;
@@ -176,12 +106,14 @@ bool hasRightAngle(const Polygon& p) {
         int dy2 = c.y_ - b.y_;
 
         int dot = dx1 * dx2 + dy1 * dy2;
-        if (dot == 0) return true;
-    }
-    return false;
+        return dot == 0;
+        });
 }
 
-std::string handleRightShapes(const std::vector<Polygon>& polygons) {
-    int count = std::count_if(polygons.begin(), polygons.end(), hasRightAngle);
-    return std::to_string(count);
+int countRightAngleShapes(const std::vector<Polygon>& polygons) {
+    return static_cast<int>(std::count_if(polygons.begin(), polygons.end(), hasRightAngle));
+}
+
+void invalidCommand() {
+    std::cout << "<INVALID COMMAND>\n";
 }

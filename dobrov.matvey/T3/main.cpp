@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <algorithm>
 #include <vector>
 #include <fstream>
 #include <iterator>
@@ -35,35 +36,107 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    std::cout << std::fixed << std::setprecision(1);
+
     std::string line;
     while (std::getline(std::cin, line)) {
         if (line.empty()) continue;
 
         std::istringstream iss(line);
         std::string cmd;
+        std::string arg;
+
         if (!(iss >> cmd)) {
-            std::cout << "<INVALID COMMAND>\n";
+            invalidCommand();
+            continue;
+        }
+
+        if (polygons.empty()) {
+            invalidCommand();
+            continue;
+        }
+
+        if (cmd == "RIGHTSHAPES") {
+            std::cout << countRightAngleShapes(polygons) << "\n";
+            continue;
+        }
+
+        if (!(iss >> arg)) {
+            invalidCommand();
             continue;
         }
 
         if (cmd == "AREA") {
-            std::cout << handleArea(iss, polygons) << "\n";
+            if (arg == "ODD") {
+                std::cout << computeAreaEvenOdd(polygons, Parity::ODD) << "\n";
+            }
+            else if (arg == "EVEN") {
+                std::cout << computeAreaEvenOdd(polygons, Parity::EVEN) << "\n";
+            }
+            else if (arg == "MEAN") {
+                std::cout << computeAreaMean(polygons) << "\n";
+            }
+            else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
+                int n = std::stoi(arg);
+                if (n < 3) {
+                    invalidCommand();
+                }
+                else {
+                    std::cout << computeAreaByVertexCount(polygons, n) << "\n";
+                }
+            }
+            else {
+                invalidCommand();
+            }
         }
         else if (cmd == "MAX") {
-            std::cout << handleExtremum(iss, polygons, true) << "\n";
+            if (arg == "AREA") {
+                std::cout << computeExtremumArea(polygons, true) << "\n";
+            }
+            else if (arg == "VERTEXES") {
+                std::cout << computeExtremumVertexes(polygons, true) << "\n";
+            }
         }
         else if (cmd == "MIN") {
-            std::cout << handleExtremum(iss, polygons, false) << "\n";
+            if (arg == "AREA") {
+                std::cout << computeExtremumArea(polygons, false) << "\n";
+            }
+            else if (arg == "VERTEXES") {
+                std::cout << computeExtremumVertexes(polygons, false) << "\n";
+            }
         }
         else if (cmd == "COUNT") {
-            std::cout << handleCount(iss, polygons) << "\n";
+            if (arg == "EVEN") {
+                std::cout << computeCountEvenOdd(polygons, Parity::EVEN) << "\n";
+            }
+            else if (arg == "ODD") {
+                std::cout << computeCountEvenOdd(polygons, Parity::ODD) << "\n";
+            }
+            else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
+                int n = std::stoi(arg);
+                if (n < 3) {
+                    invalidCommand();
+                }
+                else {
+                    std::cout << computeCountByVertexCount(polygons, n) << "\n";
+                }
+            }
         }
         else if (cmd == "ECHO") {
-            std::cout << handleEcho(iss, polygons) << "\n";
+            std::string rest;
+            std::getline(iss, rest);
+
+            std::istringstream polyStream(arg + rest);
+            Polygon target;
+            if (!(polyStream >> target)) {
+                invalidCommand();
+                continue;
+            }
+            int inserted = computeEcho(polygons, target);
+            std::cout << inserted << "\n";
         }
-        else if (cmd == "RIGHTSHAPES") {
-            std::cout << handleRightShapes(polygons) << "\n";
+        else {
+            invalidCommand();
         }
-        else std::cout << "<INVALID COMMAND>\n";
     }
 }

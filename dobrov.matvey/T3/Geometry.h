@@ -22,6 +22,12 @@ std::istream& operator>>(std::istream& in, Polygon& poly);
 
 double calculateArea(const std::vector<Point>& points);
 
+enum class Parity
+{
+    EVEN,
+    ODD
+};
+
 struct EvenOddFilter {
     int mod_;
     EvenOddFilter(const std::string& arg);
@@ -30,9 +36,9 @@ struct EvenOddFilter {
 };
 
 struct AddFilteredArea {
-    const EvenOddFilter& filter_;
+    Parity parity_;
 
-    AddFilteredArea(const EvenOddFilter& filter);
+    AddFilteredArea(Parity parity) : parity_(parity) {}
 
     double apply(double acc, const Polygon& p) const;
 };
