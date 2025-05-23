@@ -1,5 +1,6 @@
 #include "Functions.h"
 #include "Geometry.h"
+#include <limits>
 #include <sstream>
 #include <iostream>
 #include <iterator>
