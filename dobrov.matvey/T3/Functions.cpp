@@ -115,6 +115,11 @@ int countRightAngleShapes(const std::vector<Polygon>& polygons) {
     return static_cast<int>(std::count_if(polygons.begin(), polygons.end(), hasRightAngle));
 }
 
+bool hasMoreArguments(std::istream& in) {
+    std::string leftover;
+    return static_cast<bool>(in >> leftover);
+}
+
 void invalidCommand() {
     std::cout << "<INVALID COMMAND>\n";
 }

@@ -69,6 +69,10 @@ int main(int argc, char* argv[]) {
                 std::cout << computeAreaEvenOdd(polygons, Parity::EVEN) << "\n";
             }
             else if (arg == "MEAN") {
+                if (polygons.empty()) {
+                    invalidCommand();
+                }
+
                 std::cout << computeAreaMean(polygons) << "\n";
             }
             else if (std::all_of(arg.begin(), arg.end(), ::isdigit)) {
@@ -85,6 +89,11 @@ int main(int argc, char* argv[]) {
             }
         }
         else if (cmd == "MAX") {
+            if (polygons.empty()) {
+                invalidCommand();
+                continue;
+            }
+
             if (arg == "AREA") {
                 std::cout << computeExtremumArea(polygons, true) << "\n";
             }
@@ -123,7 +132,7 @@ int main(int argc, char* argv[]) {
 
             std::istringstream polyStream(arg + rest);
             Polygon target;
-            if (!(polyStream >> target)) {
+            if (!(polyStream >> target) || hasMoreArguments(polyStream)) {
                 invalidCommand();
                 continue;
             }
