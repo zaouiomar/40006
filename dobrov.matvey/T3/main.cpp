@@ -51,11 +51,6 @@ int main(int argc, char* argv[]) {
             continue;
         }
 
-        if (polygons.empty()) {
-            invalidCommand();
-            continue;
-        }
-
         if (cmd == "RIGHTSHAPES") {
             std::cout << countRightAngleShapes(polygons) << "\n";
             continue;
