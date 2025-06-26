@@ -2,6 +2,7 @@
 #define GEOMETRY_H_
 #include <vector>
 #include <string>
+#include <cstdint>
 
 struct Point {
     int x_, y_;
