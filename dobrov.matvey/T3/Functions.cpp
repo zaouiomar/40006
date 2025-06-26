@@ -78,15 +78,14 @@ int computeCountByVertexCount(const std::vector<Polygon>& polygons, int n) {
 int computeEcho(std::vector<Polygon>& polygons, const Polygon& target) {
     std::vector<size_t> indices;
     std::transform(polygons.begin(), polygons.end(), std::back_inserter(indices),
-        [&](const Polygon& p) -> size_t {
+        [&](const Polygon& p) {
             return (p == target) ? (&p - &polygons[0]) : std::numeric_limits<size_t>::max();
         });
 
     indices.erase(std::remove(indices.begin(), indices.end(), std::numeric_limits<size_t>::max()), indices.end());
 
-    std::accumulate(indices.rbegin(), indices.rend(), 0, [&](int acc, size_t idx) {
+    std::for_each(indices.rbegin(), indices.rend(), [&](size_t idx) {
         polygons.insert(polygons.begin() + idx + 1, target);
-        return acc + 1;
         });
 
     return static_cast<int>(indices.size());

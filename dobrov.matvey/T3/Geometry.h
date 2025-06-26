@@ -22,7 +22,7 @@ std::istream& operator>>(std::istream& in, Polygon& poly);
 
 double calculateArea(const std::vector<Point>& points);
 
-enum class Parity
+enum class Parity : uint8_t
 {
     EVEN,
     ODD
@@ -30,7 +30,7 @@ enum class Parity
 
 struct EvenOddFilter {
     int mod_;
-    EvenOddFilter(const std::string& arg);
+    EvenOddFilter(const std::string& arg) : mod_(arg == "EVEN" ? 0 : 1) {}
 
     bool operator()(const Polygon& figure) const;
 };
@@ -45,7 +45,7 @@ struct AddFilteredArea {
 
 struct AddSpecificVertexCountArea {
     int n_;
-    AddSpecificVertexCountArea(int n);
+    AddSpecificVertexCountArea(int n) : n_(n) {}
 
     double apply(double acc, const Polygon& p) const;
 };

@@ -51,8 +51,6 @@ double calculateArea(const std::vector<Point>& points) {
     return std::abs(area) / 2.0;
 }
 
-EvenOddFilter::EvenOddFilter(const std::string& arg) : mod_(arg == "EVEN" ? 0 : 1) {}
-
 bool EvenOddFilter::operator()(const Polygon& figure) const {
     return static_cast<int>(figure.points_.size()) % 2 == mod_;
 }
@@ -73,5 +71,3 @@ double AddFilteredArea::apply(double acc, const Polygon& p) const {
 double AddSpecificVertexCountArea::apply(double acc, const Polygon& p) const {
     return (static_cast<int>(p.points_.size()) == n_) ? acc + calculateArea(p.points_) : acc;
 }
-
-AddSpecificVertexCountArea::AddSpecificVertexCountArea(int n) : n_(n) {}

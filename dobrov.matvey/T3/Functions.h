@@ -1,6 +1,6 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
-#include "Geometry.h"
+#include"Geometry.h"
 
 double computeAreaEvenOdd(const std::vector<Polygon>& polygons, Parity parity);
 double computeAreaMean(const std::vector<Polygon>& polygons);

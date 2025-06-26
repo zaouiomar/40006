@@ -71,7 +71,6 @@ int main(int argc, char* argv[]) {
             else if (arg == "MEAN") {
                 if (polygons.empty()) {
                     invalidCommand();
-                    continue;
                 }
 
                 std::cout << computeAreaMean(polygons) << "\n";
