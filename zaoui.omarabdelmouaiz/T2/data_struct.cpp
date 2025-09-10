@@ -206,10 +206,11 @@ std::ostream& omar::operator<<(std::ostream& out, const DataStruct& src)
 
 bool omar::DataStruct::operator<(const DataStruct& rhs) const noexcept
 {
+  if (key1 != rhs.key1)
   {
     return key1 < rhs.key1;
   }
-  if (key2 != rhs.key2)
+  if (std::abs(key2 - rhs.key2) > 1e-6)
   {
     return key2 < rhs.key2;
   }
