@@ -123,11 +123,11 @@ std::istream& omar::operator>>(std::istream& in, DataStruct& dest)
       if (key_num.key == 1)
       {
         in >> ll{ input.key1 } >> sep{ ':' };
-      } 
+      }
       else if (key_num.key == 2)
       {
         in >> dbl{ input.key2 };
-      } 
+      }
       else if (key_num.key == 3)
       {
         in >> str{ input.key3 } >> sep{ ':' };
