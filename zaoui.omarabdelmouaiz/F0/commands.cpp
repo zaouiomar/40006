@@ -8,8 +8,8 @@
 
 namespace
 {
-  using constWord  = const std::pair< std::string, mozhegova::Xrefs >;
-  using Word  = std::pair< const std::string, mozhegova::Xrefs >;
+  using constWord  = const std::pair< std::string, zaoui::Xrefs >;
+  using Word  = std::pair< const std::string, zaoui::Xrefs >;
   bool cmpMaxWordLen(constWord & a, constWord & b)
   {
     return a.first.size() < b.first.size();
@@ -36,7 +36,7 @@ namespace
     }
   };
 
-  std::pair< mozhegova::WordPos, std::string > createWordPair(const mozhegova::WordPos & pos, const std::string & word)
+  std::pair< zaoui::WordPos, std::string > createWordPair(const zaoui::WordPos & pos, const std::string & word)
   {
     return std::make_pair(pos, word);
   }
@@ -44,14 +44,14 @@ namespace
   struct Accumulator
   {
     std::string result;
-    std::pair< mozhegova::WordPos, std::string > prev;
+    std::pair< zaoui::WordPos, std::string > prev;
     bool first = true;
     Accumulator(const std::string & initial):
       result(initial)
     {}
   };
 
-  Accumulator accumulateWords(Accumulator acc, const std::pair< mozhegova::WordPos, std::string > & current)
+  Accumulator accumulateWords(Accumulator acc, const std::pair< zaoui::WordPos, std::string > & current)
   {
     if (acc.first)
     {
@@ -74,7 +74,7 @@ namespace
     return acc;
   }
 
-  void supRecText(constWord & word, std::vector< std::pair< mozhegova::WordPos, std::string > > & sortedWords)
+  void supRecText(constWord & word, std::vector< std::pair< zaoui::WordPos, std::string > > & sortedWords)
   {
     auto b = word.second.begin();
     auto e = word.second.end();
@@ -82,9 +82,9 @@ namespace
     std::transform(b, e, std::back_inserter(sortedWords), std::bind(createWordPair, _1, word.first));
   }
 
-  std::string reconstructText(const mozhegova::Text & text)
+  std::string reconstructText(const zaoui::Text & text)
   {
-    std::vector< std::pair< mozhegova::WordPos, std::string > > sortedWords;
+    std::vector< std::pair< zaoui::WordPos, std::string > > sortedWords;
     using namespace std::placeholders;
     std::for_each(text.cbegin(), text.cend(), std::bind(supRecText, _1, std::ref(sortedWords)));
     std::sort(sortedWords.begin(), sortedWords.end());
@@ -113,7 +113,7 @@ namespace
   struct PrintText
   {
     std::ostream & out;
-    void operator()(const std::pair< std::string, mozhegova::Text > & text) const
+    void operator()(const std::pair< std::string, zaoui::Text > & text) const
     {
       out << text.first << ' ';
       out << std::accumulate(text.second.cbegin(), text.second.cend(), 0, AccumulateTextSize()) << '\n';
@@ -128,7 +128,7 @@ namespace
 
   size_t getMaxLineNumWord(constWord & word)
   {
-    mozhegova::Xrefs xrefs = word.second;
+    zaoui::Xrefs xrefs = word.second;
     if (xrefs.empty())
     {
       return 0;
@@ -137,7 +137,7 @@ namespace
     return maxNumIt->first;
   }
 
-  size_t getMaxLineNum(const mozhegova::Text & text)
+  size_t getMaxLineNum(const zaoui::Text & text)
   {
     std::vector< size_t > lineNum;
     std::transform(text.cbegin(), text.cend(), std::back_inserter(lineNum), getMaxLineNumWord);
@@ -151,7 +151,7 @@ namespace
 
   size_t getMaxNumWord(constWord & word)
   {
-    mozhegova::Xrefs xrefs = word.second;
+    zaoui::Xrefs xrefs = word.second;
     if (xrefs.empty())
     {
       return 0;
@@ -160,21 +160,21 @@ namespace
     return maxNumIt->second;
   }
 
-  size_t getMaxNum(const mozhegova::Text & text)
+  size_t getMaxNum(const zaoui::Text & text)
   {
     std::vector< size_t > num;
     std::transform(text.cbegin(), text.cend(), std::back_inserter(num), getMaxNumWord);
     return *std::max_element(num.cbegin(), num.cend());
   }
 
-  bool cmpBetween(const mozhegova::WordPos & pos, size_t begin, size_t end)
+  bool cmpBetween(const zaoui::WordPos & pos, size_t begin, size_t end)
   {
     return pos.first >= begin && pos.first < end;
   }
 
-  void subExtrSubstr(constWord & word, mozhegova::Text & result, size_t begin, size_t end)
+  void subExtrSubstr(constWord & word, zaoui::Text & result, size_t begin, size_t end)
   {
-    mozhegova::Xrefs newXrefs;
+    zaoui::Xrefs newXrefs;
     auto b = word.second.begin();
     auto e = word.second.end();
     using namespace std::placeholders;
@@ -185,15 +185,15 @@ namespace
     }
   }
 
-  mozhegova::Text extractSubstring(const mozhegova::Text & text, size_t begin, size_t end)
+  zaoui::Text extractSubstring(const zaoui::Text & text, size_t begin, size_t end)
   {
-    mozhegova::Text result;
+    zaoui::Text result;
     using namespace std::placeholders;
     std::for_each(text.cbegin(), text.cend(), std::bind(subExtrSubstr, _1, std::ref(result), begin, end));
     return result;
   }
 
-  mozhegova::WordPos downLenNum(const mozhegova::WordPos & pos, size_t begin, size_t end)
+  zaoui::WordPos downLenNum(const zaoui::WordPos & pos, size_t begin, size_t end)
   {
     if (pos.first >= end)
     {
@@ -202,7 +202,7 @@ namespace
     return pos;
   }
 
-  mozhegova::WordPos uppLenNum(const mozhegova::WordPos & pos, size_t n, size_t add)
+  zaoui::WordPos uppLenNum(const zaoui::WordPos & pos, size_t n, size_t add)
   {
     if (pos.first >= n)
     {
@@ -211,17 +211,17 @@ namespace
     return pos;
   }
 
-  mozhegova::WordPos changeLenNum(const mozhegova::WordPos & pos, size_t n, size_t begin)
+  zaoui::WordPos changeLenNum(const zaoui::WordPos & pos, size_t n, size_t begin)
   {
     return {pos.first + n - begin, pos.second};
   }
 
-  mozhegova::WordPos reverseLenNum(const mozhegova::WordPos & pos, size_t maxLine)
+  zaoui::WordPos reverseLenNum(const zaoui::WordPos & pos, size_t maxLine)
   {
     return {maxLine - pos.first + 1, pos.second};
   }
 
-  mozhegova::WordPos changeNum(const mozhegova::WordPos & pos, size_t line, size_t maxNum)
+  zaoui::WordPos changeNum(const zaoui::WordPos & pos, size_t line, size_t maxNum)
   {
     if (pos.first == line)
     {
@@ -230,7 +230,7 @@ namespace
     return pos;
   }
 
-  mozhegova::WordPos uppNum(const mozhegova::WordPos & pos, size_t n)
+  zaoui::WordPos uppNum(const zaoui::WordPos & pos, size_t n)
   {
     return {pos.first, pos.second + n};
   }
@@ -250,7 +250,7 @@ namespace
     std::transform(b, e, b, std::bind(downLenNum, _1, begin, end));
   }
 
-  void removeSubstring(mozhegova::Text & text, size_t begin, size_t end)
+  void removeSubstring(zaoui::Text & text, size_t begin, size_t end)
   {
     using namespace std::placeholders;
     std::for_each(text.begin(), text.end(), std::bind(subRemoveSubstr, _1, begin, end));
@@ -265,7 +265,7 @@ namespace
     std::transform(b, e, b, std::bind(uppLenNum, _1, n, end - begin));
   }
 
-  void subChangeLenNum(Word & word, mozhegova::Text & text1, size_t n, size_t begin)
+  void subChangeLenNum(Word & word, zaoui::Text & text1, size_t n, size_t begin)
   {
     auto b = word.second.begin();
     auto e = word.second.end();
@@ -273,20 +273,20 @@ namespace
     std::transform(b, e, std::back_inserter(text1[word.first]), std::bind(changeLenNum, _1, n, begin));
   }
 
-  void insertTextTo(mozhegova::Text & text1, const mozhegova::Text & text2, size_t n, size_t begin, size_t end)
+  void insertTextTo(zaoui::Text & text1, const zaoui::Text & text2, size_t n, size_t begin, size_t end)
   {
-    mozhegova::Text temp = extractSubstring(text2, begin, end);
+    zaoui::Text temp = extractSubstring(text2, begin, end);
     using namespace std::placeholders;
     std::for_each(text1.begin(), text1.end(), std::bind(subUppLenNum, _1, n, begin, end));
     std::for_each(text1.begin(), text1.end(), std::bind(subChangeLenNum, _1, std::ref(text1), n, begin));
   }
 
-  bool isWordOnLine(const mozhegova::WordPos & pos, size_t line)
+  bool isWordOnLine(const zaoui::WordPos & pos, size_t line)
   {
     return pos.first == line;
   }
 
-  void subSideMerge(Word & word, size_t line, size_t num, mozhegova::Text & combinedText)
+  void subSideMerge(Word & word, size_t line, size_t num, zaoui::Text & combinedText)
   {
     auto b = word.second.begin();
     auto e = word.second.end();
@@ -312,7 +312,7 @@ namespace
   }
 }
 
-void mozhegova::generateLinks(std::istream & in, Texts & texts)
+void zaoui::generateLinks(std::istream & in, Texts & texts)
 {
   std::string textName, fileName;
   in >> textName >> fileName;
@@ -342,7 +342,7 @@ void mozhegova::generateLinks(std::istream & in, Texts & texts)
   texts[textName] = std::move(text);
 }
 
-void mozhegova::removeLinks(std::istream & in, Texts & texts)
+void zaoui::removeLinks(std::istream & in, Texts & texts)
 {
   std::string textName;
   in >> textName;
@@ -353,7 +353,7 @@ void mozhegova::removeLinks(std::istream & in, Texts & texts)
   texts.erase(textName);
 }
 
-void mozhegova::printLinks(std::istream & in, std::ostream & out, const Texts & texts)
+void zaoui::printLinks(std::istream & in, std::ostream & out, const Texts & texts)
 {
   std::string textName;
   in >> textName;
@@ -368,7 +368,7 @@ void mozhegova::printLinks(std::istream & in, std::ostream & out, const Texts & 
   std::for_each(text.cbegin(), text.cend(), PrintWords{out, maxWordLen});
 }
 
-void mozhegova::printText(std::istream & in, std::ostream & out, const Texts & texts)
+void zaoui::printText(std::istream & in, std::ostream & out, const Texts & texts)
 {
   std::string textName;
   in >> textName;
@@ -382,7 +382,7 @@ void mozhegova::printText(std::istream & in, std::ostream & out, const Texts & t
   out << reconstructed << '\n';
 }
 
-void mozhegova::printTextInFile(std::istream & in, const Texts & texts)
+void zaoui::printTextInFile(std::istream & in, const Texts & texts)
 {
   std::string fileName;
   in >> fileName;
@@ -394,7 +394,7 @@ void mozhegova::printTextInFile(std::istream & in, const Texts & texts)
   printText(in, file, texts);
 }
 
-void mozhegova::mergeTexts(std::istream & in, Texts & texts)
+void zaoui::mergeTexts(std::istream & in, Texts & texts)
 {
   std::string newText, textName1, textName2;
   in >> newText >> textName1 >> textName2;
@@ -413,7 +413,7 @@ void mozhegova::mergeTexts(std::istream & in, Texts & texts)
   texts[newText] = std::move(temp);
 }
 
-void mozhegova::insertText(std::istream & in, Texts & texts)
+void zaoui::insertText(std::istream & in, Texts & texts)
 {
   std::string textName1, textName2;
   size_t num = 0, begin = 0, end = 0;
@@ -433,7 +433,7 @@ void mozhegova::insertText(std::istream & in, Texts & texts)
   insertTextTo(text1, text2, num, begin, end);
 }
 
-void mozhegova::removeLines(std::istream & in, Texts & texts)
+void zaoui::removeLines(std::istream & in, Texts & texts)
 {
   std::string textName;
   size_t begin = 0, end = 0;
@@ -451,7 +451,7 @@ void mozhegova::removeLines(std::istream & in, Texts & texts)
   removeSubstring(text, begin, end);
 }
 
-void mozhegova::moveText(std::istream & in, Texts & texts)
+void zaoui::moveText(std::istream & in, Texts & texts)
 {
   std::string textName1, textName2;
   size_t num = 0, begin = 0, end = 0;
@@ -472,7 +472,7 @@ void mozhegova::moveText(std::istream & in, Texts & texts)
   removeSubstring(text2, begin, end);
 }
 
-void mozhegova::sideMergeTexts(std::istream & in, Texts & texts)
+void zaoui::sideMergeTexts(std::istream & in, Texts & texts)
 {
   std::string newText, textName1, textName2;
   in >> newText >> textName1 >> textName2;
@@ -497,7 +497,7 @@ void mozhegova::sideMergeTexts(std::istream & in, Texts & texts)
   texts[newText] = std::move(temp1);
 }
 
-void mozhegova::splitTexts(std::istream & in, Texts & texts)
+void zaoui::splitTexts(std::istream & in, Texts & texts)
 {
   std::string textName, newText1, newText2;
   size_t num = 0;
@@ -520,7 +520,7 @@ void mozhegova::splitTexts(std::istream & in, Texts & texts)
   texts.erase(textName);
 }
 
-void mozhegova::invertLines(std::istream & in, Texts & texts)
+void zaoui::invertLines(std::istream & in, Texts & texts)
 {
   std::string textName;
   in >> textName;
@@ -535,7 +535,7 @@ void mozhegova::invertLines(std::istream & in, Texts & texts)
   std::for_each(text.begin(), text.end(), std::bind(subInvertLines, _1, maxLine));
 }
 
-void mozhegova::invertWords(std::istream & in, Texts & texts)
+void zaoui::invertWords(std::istream & in, Texts & texts)
 {
   std::string textName;
   in >> textName;
@@ -554,7 +554,7 @@ void mozhegova::invertWords(std::istream & in, Texts & texts)
   }
 }
 
-void mozhegova::replaceWord(std::istream & in, Texts & texts)
+void zaoui::replaceWord(std::istream & in, Texts & texts)
 {
   std::string textName, oldWord, newWord;
   in >> textName >> oldWord >> newWord;
@@ -573,7 +573,7 @@ void mozhegova::replaceWord(std::istream & in, Texts & texts)
   text.erase(wordIt);
 }
 
-void mozhegova::save(std::istream & in, const Texts & texts)
+void zaoui::save(std::istream & in, const Texts & texts)
 {
   std::string fileName;
   in >> fileName;
@@ -586,14 +586,14 @@ void mozhegova::save(std::istream & in, const Texts & texts)
   std::for_each(texts.cbegin(), texts.cend(), PrintText{file});
 }
 
-void mozhegova::loadFileCmd(std::istream & in, Texts & texts)
+void zaoui::loadFileCmd(std::istream & in, Texts & texts)
 {
   std::string fileName;
   in >> fileName;
   loadFile(fileName, texts);
 }
 
-void mozhegova::loadFile(const std::string & fileName, Texts & texts)
+void zaoui::loadFile(const std::string & fileName, Texts & texts)
 {
   std::ifstream file(fileName);
   if (!file.is_open())
@@ -626,7 +626,7 @@ void mozhegova::loadFile(const std::string & fileName, Texts & texts)
   }
 }
 
-void mozhegova::printHelp(std::ostream & out)
+void zaoui::printHelp(std::ostream & out)
 {
   out << "Available commands:\n";
   out << "generatelinks <text name> <text file> - generate new links from file\n";

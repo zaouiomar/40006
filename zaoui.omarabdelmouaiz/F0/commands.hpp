@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace mozhegova
+namespace zaoui
 {
   using WordPos = std::pair< size_t, size_t >;
   using Xrefs = std::vector< WordPos >;

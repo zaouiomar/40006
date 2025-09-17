@@ -10,7 +10,7 @@
 
 int main(int argc, char * argv[])
 {
-  using namespace mozhegova;
+  using namespace zaoui;
   std::unordered_map< std::string, std::unordered_map< std::string, std::vector< std::pair< size_t, size_t > > > > texts;
   if (argc == 2 && std::string(argv[1]) == "--help")
   {
