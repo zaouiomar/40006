@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
   cmds["replaceword"] = std::bind(replaceWord, std::ref(std::cin), std::ref(texts));
   cmds["save"] = std::bind(save, std::ref(std::cin), std::cref(texts));
   cmds["loadfile"] = std::bind(loadFileCmd, std::ref(std::cin), std::ref(texts));
-
+  printHelp(std::cout);
   std::string command;
   while (!(std::cin >> command).eof())
   {
