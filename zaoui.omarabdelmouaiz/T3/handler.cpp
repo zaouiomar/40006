@@ -1,5 +1,6 @@
 #include "handler.hpp"
 #include "scope_guard.hpp"
+#include <string>
 
 template< typename Pred >
 void omar::areaOddEven(const std::vector< Polygon >& data, std::ostream& out, Pred predicate)
