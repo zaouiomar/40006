@@ -9,7 +9,9 @@ void omar::areaOddEven(const std::vector< Polygon >& data, std::ostream& out, Pr
   std::vector< Polygon > polysByPredicate;
 
   std::copy_if(data.begin(), data.end(), std::back_inserter(polysByPredicate), predicate);
+
   std::transform(polysByPredicate.begin(), polysByPredicate.end(), std::back_inserter(areas), calcArea);
+
   double totalArea = std::accumulate(areas.begin(), areas.end(), 0.0);
   areaOut(totalArea, out);
 }
@@ -58,6 +60,7 @@ void omar::area(const std::vector< Polygon >& data, std::istream& in, std::ostre
   std::map< std::string, std::function< void() > > subCmds;
   using functionBoolPoly = std::function< bool(const Polygon&) >;
   subCmds["ODD"] = std::bind(areaOddEven< functionBoolPoly >, std::ref(data), std::ref(out), isPolygonOdd);
+
   subCmds["EVEN"] = std::bind(areaOddEven< functionBoolPoly >, std::ref(data), std::ref(out), isPolygonEven);
   subCmds["MEAN"] = std::bind(areaMean, std::ref(data), std::ref(out));
   try
@@ -81,6 +84,7 @@ void omar::area(const std::vector< Polygon >& data, std::istream& in, std::ostre
     }
   }
 }
+
 void omar::minMaxArea(const std::vector< Polygon >& data, std::ostream& out, const std::string& command)
 {
   Polygon resultingPolygon;
@@ -233,6 +237,7 @@ void omar::inframe(const std::vector< Polygon >& data, std::istream& in, std::os
   Borders polysBox = getMaxPolygonBox(data);
   auto isPointInBordersBind = std::bind(isPointInBorders, _1, std::cref(polysBox));
   bool inside = std::all_of(inframePoly.points.begin(), inframePoly.points.end(), isPointInBordersBind);
+
   StreamGuard guard(out);
   if (inside)
   {
