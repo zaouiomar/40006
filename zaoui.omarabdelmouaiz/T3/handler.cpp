@@ -107,7 +107,7 @@ void omar::minMaxVertices(const std::vector< Polygon >& data, std::ostream& out,
   minOrMax["max"] = std::bind(maxElement, std::cref(data), compareVertices);
   try
   {
-    resultingPolygon = minOrMax.at(command)(); 
+    resultingPolygon = minOrMax.at(command)();
   }
   catch (const std::out_of_range& e)
   {
@@ -212,7 +212,7 @@ void omar::rmecho(std::vector< Polygon >& data, std::istream& in, std::ostream& 
   size_t oldSize = data.size();
   auto helperBind = std::bind(rmEchoHelper, rmPolygon, _1, _2);
   auto new_end = std::unique(data.begin(), data.end(), helperBind);
-  data.erase(new_end, data.end()); 
+  data.erase(new_end, data.end());
   size_t removed = oldSize - data.size();
 
   StreamGuard guard(out);

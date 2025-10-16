@@ -14,7 +14,6 @@ bool omar::isPolygonOdd(const Polygon& src)
 {
   return getVertices(src) % 2 != 0;
 }
-
 bool omar::isPolygonOfSize(const Polygon& src, const size_t& userSize)
 {
   return getVertices(src) == userSize;
