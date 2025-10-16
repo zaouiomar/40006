@@ -81,7 +81,7 @@ std::ostream& omar::operator<<(std::ostream& out, const Polygon& src)
 
   omar::StreamGuard guard(out);
   using ostreamPnt = std::ostream_iterator< Point >;
-  std::copy(src.points.begin(), src.points.end(), ostreamPnt{out, " "}); // Automatic spacing with iterator
+  std::copy(src.points.begin(), src.points.end(), ostreamPnt{out, " "});
   return out;
 }
 

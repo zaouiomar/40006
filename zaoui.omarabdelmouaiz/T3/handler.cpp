@@ -67,7 +67,7 @@ void omar::area(const std::vector< Polygon >& data, std::istream& in, std::ostre
   {
     if (isStringNumeric(subcommand))
     {
-      size_t vertices = std::stoull(subcommand); //stoull : st = string to...oull = unsigned long long
+      size_t vertices = std::stoull(subcommand);
       if (vertices < 3)
       {
         throw std::logic_error("Invalid query in AREA.");
@@ -80,7 +80,6 @@ void omar::area(const std::vector< Polygon >& data, std::istream& in, std::ostre
     }
   }
 }
-
 void omar::minMaxArea(const std::vector< Polygon >& data, std::ostream& out, const std::string& command)
 {
   Polygon resultingPolygon;
@@ -225,7 +224,7 @@ void omar::inframe(const std::vector< Polygon >& data, std::istream& in, std::os
 
   Polygon inframePoly;
   in >> inframePoly;
-  if (in.fail() || in.peek() != '\n') //Checks if there's extra unexpected input after reading the polygon
+  if (in.fail() || in.peek() != '\n')
   {
     throw std::logic_error("Input failed in INFRAME.");
   }
@@ -233,7 +232,6 @@ void omar::inframe(const std::vector< Polygon >& data, std::istream& in, std::os
   Borders polysBox = getMaxPolygonBox(data);
   auto isPointInBordersBind = std::bind(isPointInBorders, _1, std::cref(polysBox));
   bool inside = std::all_of(inframePoly.points.begin(), inframePoly.points.end(), isPointInBordersBind);
-  // std::all_of: Returns true only if ALL points satisfy the condition
   StreamGuard guard(out);
   if (inside)
   {
@@ -247,15 +245,15 @@ void omar::inframe(const std::vector< Polygon >& data, std::istream& in, std::os
 
 omar::commandMap omar::mapCommandHandlers(std::vector< Polygon >& data)
 {
-  using namespace std::placeholders; // Brings the placeholder names _1, _2, _3
-  commandMap cmds; //creates a map named cmds
+  using namespace std::placeholders;
+  commandMap cmds;
   const std::string minCommand = "min";
   const std::string maxCommand = "max";
   cmds["AREA"] = std::bind(area, std::cref(data), _1, _2);
   cmds["MAX"] = std::bind(minMax, std::cref(data), _1, _2, maxCommand);
   cmds["MIN"] = std::bind(minMax, std::cref(data), _1, _2, minCommand);
   cmds["COUNT"] = std::bind(count, std::cref(data), _1, _2);
-  cmds["RMECHO"] = std::bind(rmecho, std::ref(data), _1, _2); // read-write access
-  cmds["INFRAME"] = std::bind(inframe, std::cref(data), _1, _2); // read-write access
+  cmds["RMECHO"] = std::bind(rmecho, std::ref(data), _1, _2);
+  cmds["INFRAME"] = std::bind(inframe, std::cref(data), _1, _2);
   return cmds;
 }

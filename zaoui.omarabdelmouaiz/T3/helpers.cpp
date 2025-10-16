@@ -27,13 +27,11 @@ bool omar::isStringNumeric(const std::string& str)
   using namespace std::placeholders;
   auto isNumericBind = std::bind(isdigit, _1);
   return std::all_of(str.begin(), str.end(), isNumericBind);
-}// this Is equivalent to this simple function:
-// bool isNumericBind(char c) {
-//  return isdigit(c); }
+}
 
 double omar::areaTermCalculate(const std::vector< Point >& points, size_t index)
 {
-  size_t next = (index + 1) % points.size(); //makes it wrap around to the first point when at the end
+  size_t next = (index + 1) % points.size();
   double ySum = points[index].y + points[next].y;
   double xDiff = points[index].x - points[next].x;
   return ySum * xDiff;
@@ -50,7 +48,6 @@ double omar::calcArea(const Polygon& src)
   std::vector< double > areaTerms(n);
   auto termCalcBind = std::bind(areaTermCalculate, std::cref(src.points), _1);
   std::transform(indices.begin(), indices.end(), std::back_inserter(areaTerms), termCalcBind);
-  //"back_inserter":creates an iterator that calls push_back automatically, grows automatically
 
   std::vector< double > ones(areaTerms.size(), 1.0);
   double area = std::inner_product(areaTerms.begin(), areaTerms.end(), ones.begin(), 0.0);
@@ -61,7 +58,7 @@ double omar::calcArea(const Polygon& src)
 void omar::areaOut(double result, std::ostream& out)
 {
   StreamGuard guard(out);
-  out << std::fixed << std::setprecision(1) << result << '\n'; //fixed: Forces fixed-point notation (not scientific)
+  out << std::fixed << std::setprecision(1) << result << '\n';
 }
 
 bool omar::compareAreas(const Polygon& lhs, const Polygon& rhs)
@@ -101,7 +98,7 @@ bool omar::compareY(const Point& lhs, const Point& rhs)
 
 omar::Borders omar::getPolygonBox(const Polygon& src)
 {
-  auto minX = std::min_element(src.points.begin(), src.points.end(), compareX);// gives the smallest point using the logic of comparing only the xs
+  auto minX = std::min_element(src.points.begin(), src.points.end(), compareX);
   auto minY = std::min_element(src.points.begin(), src.points.end(), compareY);
   auto maxX = std::max_element(src.points.begin(), src.points.end(), compareX);
   auto maxY = std::max_element(src.points.begin(), src.points.end(), compareY);
