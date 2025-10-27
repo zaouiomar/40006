@@ -5,11 +5,14 @@
 #include <functional>
 #include <numeric>
 #include <iomanip>
+#include <sstream>
+#include <map>
 
 namespace
 {
   using constWord  = const std::pair< std::string, zaoui::Xrefs >;
   using Word  = std::pair< const std::string, zaoui::Xrefs >;
+
   bool cmpMaxWordLen(constWord & a, constWord & b)
   {
     return a.first.size() < b.first.size();
@@ -44,12 +47,21 @@ namespace
   struct Accumulator
   {
     std::string result;
-    std::pair< zaoui::WordPos, std::string > prev;
+    zaoui::WordPos prev;
     bool first = true;
     Accumulator(const std::string & initial):
       result(initial)
     {}
   };
+
+  bool compareWordPositions(const std::pair< zaoui::WordPos, std::string > & a,
+  const std::pair< zaoui::WordPos, std::string > & b)
+{
+  if (a.first.first != b.first.first) {
+    return a.first.first < b.first.first;
+  }
+  return a.first.second < b.first.second;
+}
 
   Accumulator accumulateWords(Accumulator acc, const std::pair< zaoui::WordPos, std::string > & current)
   {
@@ -60,7 +72,7 @@ namespace
     }
     else
     {
-      if (acc.prev.first.first != current.first.first)
+      if (acc.prev.first != current.first.first)
       {
         acc.result += '\n';
       }
@@ -70,7 +82,7 @@ namespace
       }
       acc.result += current.second;
     }
-    acc.prev = current;
+    acc.prev = current.first;
     return acc;
   }
 
@@ -87,7 +99,7 @@ namespace
     std::vector< std::pair< zaoui::WordPos, std::string > > sortedWords;
     using namespace std::placeholders;
     std::for_each(text.cbegin(), text.cend(), std::bind(supRecText, _1, std::ref(sortedWords)));
-    std::sort(sortedWords.begin(), sortedWords.end());
+    std::sort(sortedWords.begin(), sortedWords.end(), compareWordPositions);
     if (sortedWords.empty())
     {
       return "";
@@ -97,29 +109,6 @@ namespace
     return result.result;
   }
 
-  size_t getSizeWord(constWord & word)
-  {
-    return word.second.size();
-  }
-
-  struct AccumulateTextSize
-  {
-    size_t operator()(size_t currentSize, constWord & word) const
-    {
-      return currentSize + getSizeWord(word);
-    }
-  };
-
-  struct PrintText
-  {
-    std::ostream & out;
-    void operator()(const std::pair< std::string, zaoui::Text > & text) const
-    {
-      out << text.first << ' ';
-      out << std::accumulate(text.second.cbegin(), text.second.cend(), 0, AccumulateTextSize()) << '\n';
-      out << reconstructText(text.second) << '\n';
-    }
-  };
 
   bool cmpMaxLineNumWord(const std::pair< size_t, size_t > & a, const std::pair< size_t, size_t > & b)
   {
@@ -144,33 +133,10 @@ namespace
     return *std::max_element(lineNum.cbegin(), lineNum.cend());
   }
 
-  bool cmpMaxNumWord(const std::pair< size_t, size_t > & a, const std::pair< size_t, size_t > & b)
-  {
-    return a.second < b.second;
-  }
-
-  size_t getMaxNumWord(constWord & word)
-  {
-    zaoui::Xrefs xrefs = word.second;
-    if (xrefs.empty())
-    {
-      return 0;
-    }
-    auto maxNumIt = std::max_element(xrefs.cbegin(), xrefs.cend(), cmpMaxNumWord);
-    return maxNumIt->second;
-  }
-
-  size_t getMaxNum(const zaoui::Text & text)
-  {
-    std::vector< size_t > num;
-    std::transform(text.cbegin(), text.cend(), std::back_inserter(num), getMaxNumWord);
-    return *std::max_element(num.cbegin(), num.cend());
-  }
-
-  bool cmpBetween(const zaoui::WordPos & pos, size_t begin, size_t end)
-  {
-    return pos.first >= begin && pos.first < end;
-  }
+ bool cmpBetween(const zaoui::WordPos & pos, size_t begin, size_t end)
+{
+  return pos.first >= begin && pos.first <= end;
+}
 
   void subExtrSubstr(constWord & word, zaoui::Text & result, size_t begin, size_t end)
   {
@@ -197,42 +163,14 @@ namespace
   {
     if (pos.first >= end)
     {
-      return {pos.first - (end - begin), pos.second};
+      return {pos.first - (end - begin + 1), pos.second};
     }
     return pos;
-  }
-
-  zaoui::WordPos uppLenNum(const zaoui::WordPos & pos, size_t n, size_t add)
-  {
-    if (pos.first >= n)
-    {
-      return {pos.first + add, pos.second};
-    }
-    return pos;
-  }
-
-  zaoui::WordPos changeLenNum(const zaoui::WordPos & pos, size_t n, size_t begin)
-  {
-    return {pos.first + n - begin, pos.second};
   }
 
   zaoui::WordPos reverseLenNum(const zaoui::WordPos & pos, size_t maxLine)
   {
     return {maxLine - pos.first + 1, pos.second};
-  }
-
-  zaoui::WordPos changeNum(const zaoui::WordPos & pos, size_t line, size_t maxNum)
-  {
-    if (pos.first == line)
-    {
-      return {pos.first, maxNum - pos.second + 1};
-    }
-    return pos;
-  }
-
-  zaoui::WordPos uppNum(const zaoui::WordPos & pos, size_t n)
-  {
-    return {pos.first, pos.second + n};
   }
 
   void subRemoveSubstr(Word & word, size_t begin, size_t end)
@@ -256,44 +194,34 @@ namespace
     std::for_each(text.begin(), text.end(), std::bind(subRemoveSubstr, _1, begin, end));
     std::for_each(text.begin(), text.end(), std::bind(subDownLenNum, _1, begin, end));
   }
-
-  void subUppLenNum(Word & word, size_t n, size_t begin, size_t end)
-  {
-    auto b = word.second.begin();
-    auto e = word.second.end();
-    using namespace std::placeholders;
-    std::transform(b, e, b, std::bind(uppLenNum, _1, n, end - begin));
-  }
-
-  void subChangeLenNum(Word & word, zaoui::Text & text1, size_t n, size_t begin)
-  {
-    auto b = word.second.begin();
-    auto e = word.second.end();
-    using namespace std::placeholders;
-    std::transform(b, e, std::back_inserter(text1[word.first]), std::bind(changeLenNum, _1, n, begin));
-  }
-
   void insertTextTo(zaoui::Text & text1, const zaoui::Text & text2, size_t n, size_t begin, size_t end)
-  {
-    zaoui::Text temp = extractSubstring(text2, begin, end);
-    using namespace std::placeholders;
-    std::for_each(text1.begin(), text1.end(), std::bind(subUppLenNum, _1, n, begin, end));
-    std::for_each(text1.begin(), text1.end(), std::bind(subChangeLenNum, _1, std::ref(text1), n, begin));
-  }
+{
 
-  bool isWordOnLine(const zaoui::WordPos & pos, size_t line)
-  {
-    return pos.first == line;
-  }
+  zaoui::Text temp = extractSubstring(text2, begin, end);
 
-  void subSideMerge(Word & word, size_t line, size_t num, zaoui::Text & combinedText)
-  {
-    auto b = word.second.begin();
-    auto e = word.second.end();
-    using namespace std::placeholders;
-    std::transform(b, e, b, std::bind(uppNum, _1, num));
-    std::copy_if(b, e, std::back_inserter(combinedText[word.first]), std::bind(isWordOnLine, _1, line));
-  }
+  size_t linesToInsert = end - begin + 1;
+  std::for_each(text1.begin(), text1.end(),
+    [n, linesToInsert](auto& wordEntry) {
+      auto& positions = wordEntry.second;
+      std::for_each(positions.begin(), positions.end(),
+        [n, linesToInsert](auto& pos) {
+          if (pos.first >= n) {
+            pos.first += linesToInsert;
+          }
+        });
+    });
+
+  std::for_each(temp.cbegin(), temp.cend(),
+    [&text1, n, begin](const auto& wordEntry) {
+      const std::string& word = wordEntry.first;
+      std::for_each(wordEntry.second.cbegin(), wordEntry.second.cend(),
+        [&text1, &word, n, begin](const auto& pos) {
+
+          size_t newLine = n + (pos.first - begin);
+          text1[word].push_back({newLine, pos.second});
+        });
+    });
+}
 
   void subInvertLines(Word & word, size_t lineNum)
   {
@@ -301,14 +229,6 @@ namespace
     auto e = word.second.end();
     using namespace std::placeholders;
     std::transform(b, e, b, std::bind(reverseLenNum, _1, lineNum));
-  }
-
-  void subInvertWords(Word & word, size_t line, size_t maxNum)
-  {
-    auto b = word.second.begin();
-    auto e = word.second.end();
-    using namespace std::placeholders;
-    std::transform(b, e, b, std::bind(changeNum, _1, line, maxNum));
   }
 }
 
@@ -325,19 +245,24 @@ void zaoui::generateLinks(std::istream & in, Texts & texts)
   {
     throw std::runtime_error("<INVALID COMMAND>");
   }
+
   Text text{};
-  size_t line = 0;
-  while (!file.eof())
+  std::string lineStr;
+  size_t lineNum = 0;
+  while (std::getline(file, lineStr))
   {
-    ++line;
+    ++lineNum;
+    if (lineStr.empty()) continue;
+    std::istringstream lineStream(lineStr);
     std::string word;
-    size_t num = 0;
-    while (file.peek() != '\n' && file >> word)
+    size_t wordNum = 0;
+
+    while (lineStream >> word)
     {
-      ++num;
-      text[word].push_back({line, num});
+      ++wordNum;
+
+      text[word].push_back({lineNum, wordNum});
     }
-    file.ignore();
   }
   texts[textName] = std::move(text);
 }
@@ -366,6 +291,7 @@ void zaoui::printLinks(std::istream & in, std::ostream & out, const Texts & text
   auto maxWordIt = std::max_element(text.cbegin(), text.cend(), cmpMaxWordLen);
   size_t maxWordLen = maxWordIt->first.length() + 2;
   std::for_each(text.cbegin(), text.cend(), PrintWords{out, maxWordLen});
+  out << "\n";
 }
 
 void zaoui::printText(std::istream & in, std::ostream & out, const Texts & texts)
@@ -380,6 +306,7 @@ void zaoui::printText(std::istream & in, std::ostream & out, const Texts & texts
   const Text & text = it->second;
   std::string reconstructed = reconstructText(text);
   out << reconstructed << '\n';
+  out << "\n";
 }
 
 void zaoui::printTextInFile(std::istream & in, const Texts & texts)
@@ -408,29 +335,37 @@ void zaoui::mergeTexts(std::istream & in, Texts & texts)
   const Text & text1 = it1->second;
   const Text & text2 = it2->second;
   Text temp = text1;
-  size_t num = getMaxLineNum(temp) + 1;
-  insertTextTo(temp, text2, num, 1, getMaxLineNum(text2) + 1);
+
+  size_t insertionPoint = getMaxLineNum(temp) + 1;
+
+  insertTextTo(temp, text2, insertionPoint, 1, getMaxLineNum(text2));
   texts[newText] = std::move(temp);
 }
 
 void zaoui::insertText(std::istream & in, Texts & texts)
 {
-  std::string textName1, textName2;
-  size_t num = 0, begin = 0, end = 0;
-  in >> textName1 >> num >> textName2 >> begin >> end;
-  auto it1 = texts.find(textName1);
-  auto it2 = texts.find(textName2);
-  if (it1 == texts.end() || it2 == texts.end())
-  {
-    throw std::runtime_error("<INVALID COMMAND>");
-  }
-  Text & text1 = it1->second;
-  const Text & text2 = it2->second;
-  if ((num > 1 + getMaxLineNum(text1)) || (begin < 1) || (end > getMaxLineNum(text2) + 1))
-  {
-    throw std::runtime_error("<INVALID COMMAND>");
-  }
-  insertTextTo(text1, text2, num, begin, end);
+    std::string textName1, textName2;
+    size_t num = 0, begin = 0, end = 0;
+    in >> textName1 >> num >> textName2 >> begin >> end;
+    auto it1 = texts.find(textName1);
+    auto it2 = texts.find(textName2);
+    if (it1 == texts.end() || it2 == texts.end()) {
+        throw std::runtime_error("<INVALID COMMAND>");
+    }
+
+    Text & text1 = it1->second;
+    const Text & text2 = it2->second;
+
+    size_t maxLine1 = getMaxLineNum(text1);
+    size_t maxLine2 = getMaxLineNum(text2);
+
+    if (num < 1 || num > maxLine1 + 1 ||
+        begin < 1 || begin > maxLine2 ||
+        end < begin || end > maxLine2) {
+        throw std::runtime_error("<INVALID COMMAND>");
+    }
+
+    insertTextTo(text1, text2, num, begin, end);
 }
 
 void zaoui::removeLines(std::istream & in, Texts & texts)
@@ -444,7 +379,10 @@ void zaoui::removeLines(std::istream & in, Texts & texts)
     throw std::runtime_error("<INVALID COMMAND>");
   }
   Text & text = it->second;
-  if ((begin < 1) || (end > getMaxLineNum(text) + 1))
+  size_t maxLine = getMaxLineNum(text);
+
+  if (begin < 1 || begin > maxLine ||
+      end < begin || end > maxLine)
   {
     throw std::runtime_error("<INVALID COMMAND>");
   }
@@ -462,39 +400,23 @@ void zaoui::moveText(std::istream & in, Texts & texts)
   {
     throw std::runtime_error("<INVALID COMMAND>");
   }
+
   Text & text1 = it1->second;
   Text & text2 = it2->second;
-  if ((num > 1 + getMaxLineNum(text1)) || (begin < 1) || (end > getMaxLineNum(text2) + 1))
+
+  size_t maxLine1 = getMaxLineNum(text1);
+  size_t maxLine2 = getMaxLineNum(text2);
+
+
+  if (num < 1 || num > maxLine1 + 1 ||
+      begin < 1 || begin > maxLine2 ||
+      end < begin || end > maxLine2)
   {
     throw std::runtime_error("<INVALID COMMAND>");
   }
+
   insertTextTo(text1, text2, num, begin, end);
   removeSubstring(text2, begin, end);
-}
-
-void zaoui::sideMergeTexts(std::istream & in, Texts & texts)
-{
-  std::string newText, textName1, textName2;
-  in >> newText >> textName1 >> textName2;
-  auto it1 = texts.find(textName1);
-  auto it2 = texts.find(textName2);
-  auto it = texts.find(newText);
-  if (it1 == texts.end() || it2 == texts.end() || it != texts.end())
-  {
-    throw std::runtime_error("<INVALID COMMAND>");
-  }
-  const Text & text1 = it1->second;
-  const Text & text2 = it2->second;
-  Text temp1 = text1;
-  Text temp2 = text2;
-  size_t maxLines = std::max(getMaxLineNum(text1), getMaxLineNum(text2));
-  size_t maxNum = getMaxNum(text1);
-  for (size_t line = 1; line <= maxLines; ++line)
-  {
-    using namespace std::placeholders;
-    std::for_each(temp2.begin(), temp2.end(), std::bind(subSideMerge, _1, line, maxNum, std::ref(temp1)));
-  }
-  texts[newText] = std::move(temp1);
 }
 
 void zaoui::splitTexts(std::istream & in, Texts & texts)
@@ -513,8 +435,8 @@ void zaoui::splitTexts(std::istream & in, Texts & texts)
   {
     throw std::runtime_error("<INVALID COMMAND>");
   }
-  Text newText = extractSubstring(text, num, end + 1);
-  removeSubstring(text, num, end + 1);
+  Text newText = extractSubstring(text, num, end);
+  removeSubstring(text, num, end);
   texts[newText1] = std::move(text);
   texts[newText2] = std::move(newText);
   texts.erase(textName);
@@ -545,13 +467,30 @@ void zaoui::invertWords(std::istream & in, Texts & texts)
     throw std::runtime_error("<INVALID COMMAND>");
   }
   Text & text = it->second;
-  size_t maxLines = getMaxLineNum(text);
-  size_t maxNum = getMaxNum(text);
-  for (size_t line = 1; line <= maxLines; ++line)
-  {
-    using namespace std::placeholders;
-    std::for_each(text.begin(), text.end(), std::bind(subInvertWords, _1, line, maxNum));
-  }
+
+  std::map<size_t, size_t> lineMaxPos;
+  std::for_each(text.cbegin(), text.cend(),
+    [&lineMaxPos](const auto& wordEntry) {
+      std::for_each(wordEntry.second.cbegin(), wordEntry.second.cend(),
+        [&lineMaxPos](const auto& pos) {
+          if (pos.second > lineMaxPos[pos.first]) {
+            lineMaxPos[pos.first] = pos.second;
+          }
+        });
+    });
+
+
+  std::for_each(text.begin(), text.end(),
+    [&lineMaxPos](auto& wordEntry) {
+      auto& positions = wordEntry.second;
+      std::for_each(positions.begin(), positions.end(),
+        [&lineMaxPos](auto& pos) {
+          size_t maxPos = lineMaxPos[pos.first];
+          if (maxPos > 0) {
+            pos.second = maxPos - pos.second + 1;
+          }
+        });
+    });
 }
 
 void zaoui::replaceWord(std::istream & in, Texts & texts)
@@ -561,69 +500,35 @@ void zaoui::replaceWord(std::istream & in, Texts & texts)
   auto it = texts.find(textName);
   if (it == texts.end())
   {
-    throw std::runtime_error("<INVALID COMMAND>");
+    throw std::runtime_error("<TEXT NOT FOUND>");
   }
   Text & text = it->second;
-  auto wordIt = text.find(oldWord);
-  if (wordIt == text.end())
-  {
-    throw std::runtime_error("<INVALID COMMAND>");
-  }
-  text[newWord] = std::move(wordIt->second);
-  text.erase(wordIt);
-}
 
-void zaoui::save(std::istream & in, const Texts & texts)
-{
-  std::string fileName;
-  in >> fileName;
-  std::ofstream file(fileName);
-  if (!file.is_open())
-  {
-    throw std::runtime_error("<INVALID FILE>");
-  }
-  file << texts.size() << '\n';
-  std::for_each(texts.cbegin(), texts.cend(), PrintText{file});
-}
 
-void zaoui::loadFileCmd(std::istream & in, Texts & texts)
-{
-  std::string fileName;
-  in >> fileName;
-  loadFile(fileName, texts);
-}
+  if (oldWord == newWord) {
+    return;
+  }
 
-void zaoui::loadFile(const std::string & fileName, Texts & texts)
-{
-  std::ifstream file(fileName);
-  if (!file.is_open())
+  auto oldWordIt = text.find(oldWord);
+  if (oldWordIt == text.end())
   {
-    throw std::runtime_error("<INVALID FILE>");
+    throw std::runtime_error("<OLD WORD NOT FOUND>");
   }
-  size_t textsCount;
-  file >> textsCount;
-  for (size_t i = 0; i < textsCount; ++i)
-  {
-    std::string textName;
-    size_t wordCount;
-    file >> textName >> wordCount;
-    Text & currText = texts[textName];
-    std::string word;
-    size_t line = 0;
-    size_t j = 0;
-    while (j < wordCount)
-    {
-      ++line;
-      size_t num = 0;
-      while (file.peek() != '\n' && file >> word)
-      {
-        ++num;
-        currText[word].push_back({line, num});
-        ++j;
-      }
-      file.ignore();
-    }
+
+
+  auto newWordIt = text.find(newWord);
+  if (newWordIt != text.end()) {
+
+    newWordIt->second.insert(newWordIt->second.end(),
+                            oldWordIt->second.begin(),
+                            oldWordIt->second.end());
+  } else {
+
+    text[newWord] = std::move(oldWordIt->second);
   }
+
+
+  text.erase(oldWordIt);
 }
 
 void zaoui::printHelp(std::ostream & out)
@@ -638,13 +543,9 @@ void zaoui::printHelp(std::ostream & out)
   out << "insert <text1 name> <num> <text2 name> <begin> <end> - insert part of the text into another\n";
   out << "removelines <text name> <begin> <end> - delete part of the text\n";
   out << "move <text1 name> <num> <text2 name> <begin> <end> - move part of the text into another\n";
-  out << "sidemerge <text result name> <text1 name> <text2 name> - merge two texts along the lines\n";
   out << "split <text name> <num> <new text1 name> <new text2 name> - split the text into two texts\n";
   out << "invertlines <text name> - reverse the order of lines in the text\n";
   out << "invertwords <text name> - reverse the order of words in each line in the text\n";
   out << "replaceword <text name> <old word> <new word> - replace a word in the text with a new one \n";
-  out << "save <file name> - save all texts\n";
-  out << "loadfile <file name> - load the file\n";
-  out << "--continue - load the saves\n";
   out << "--help - show this help\n";
 }

@@ -19,15 +19,8 @@ int main(int argc, char * argv[])
   }
   else if (argc == 3 && std::string(argv[1]) == "--continue")
   {
-    try
-    {
-      loadFile(std::string(argv[2]), texts);
-    }
-    catch (const std::exception & e)
-    {
-      std::cerr << e.what() << '\n';
-      return 1;
-    }
+    std::cerr << "<INVALID COMMAND>\n";
+    return 1;
   }
 
   std::map< std::string, std::function< void() > > cmds;
@@ -40,14 +33,11 @@ int main(int argc, char * argv[])
   cmds["insert"] = std::bind(insertText, std::ref(std::cin), std::ref(texts));
   cmds["removelines"] = std::bind(removeLines, std::ref(std::cin), std::ref(texts));
   cmds["move"] = std::bind(moveText, std::ref(std::cin), std::ref(texts));
-  cmds["sidemerge"] = std::bind(sideMergeTexts, std::ref(std::cin), std::ref(texts));
   cmds["split"] = std::bind(splitTexts, std::ref(std::cin), std::ref(texts));
   cmds["invertlines"] = std::bind(invertLines, std::ref(std::cin), std::ref(texts));
   cmds["invertwords"] = std::bind(invertWords, std::ref(std::cin), std::ref(texts));
   cmds["replaceword"] = std::bind(replaceWord, std::ref(std::cin), std::ref(texts));
-  cmds["save"] = std::bind(save, std::ref(std::cin), std::cref(texts));
-  cmds["loadfile"] = std::bind(loadFileCmd, std::ref(std::cin), std::ref(texts));
-  printHelp(std::cout);
+
   std::string command;
   while (!(std::cin >> command).eof())
   {
